@@ -21,12 +21,14 @@ public:
      * @param batch_dir Batch directory name for outputs.
      * @param wheel_filepath Path to the .obj file for the wheel
      * @param terrain_filepath Path to the .csv file containing the pre-settled terrain data.
+     * @param data_drivepath Path to the data drive
      */
     WheelSimulator( double slip, 
                     double sim_endtime, 
                     const std::string& batch_dir, 
                     const std::filesystem::path& wheel_filepath,
-                    const std::filesystem::path& terrain_filepath
+                    const std::filesystem::path& terrain_filepath,
+                    const std::filesystem::path& data_drivepath
                 );
 
     /**

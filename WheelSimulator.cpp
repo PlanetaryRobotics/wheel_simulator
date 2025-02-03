@@ -19,12 +19,13 @@ using namespace deme;
 
 WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::string& batch_dir,
                     const std::filesystem::path& wheel_filepath,
-                    const std::filesystem::path& terrain_filepath)
+                    const std::filesystem::path& terrain_filepath,
+                    const std::filesystem::path& data_drivepath)
     : slip_(slip),
       sim_endtime_(sim_endtime),
       terrain_filepath_(terrain_filepath),
       batch_dir_(batch_dir),
-      data_dir_("/data"),
+      data_dir_(data_drivepath),
       step_size_(Constants::INITIAL_STEP_SIZE),
       fps_(Constants::FPS),
       out_steps_(static_cast<unsigned int>(1.0 / (Constants::FPS * Constants::INITIAL_STEP_SIZE))),
