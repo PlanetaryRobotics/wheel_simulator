@@ -5,8 +5,8 @@
 
 int main(int argc, char* argv[]) {
     // Process input data
-    if (argc != 4) {
-        std::cerr << "Usage: ./WheelSimulator <slip> <sim_endtime> <batch_dir_name>" << std::endl;
+    if (argc != 7) {
+        std::cerr << "Usage: ./WheelSimulator <slip> <sim_endtime> <batch_dir_name> <wheel_path> <terrain_path> <data_path>" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -15,9 +15,9 @@ int main(int argc, char* argv[]) {
     double sim_endtime = std::atof(argv[2]);
     std::string batch_dir = argv[3];
 
-    std::filesystem::path wheel_filepath = "~/moonranger_mobility/meshes/moonranger_wheel.obj";
-    std::filesystem::path terrain_filepath = "~/moonranger_mobility/terrain/grc_3e5_Reduced_Footprint.csv";
-    std::filesystem::path data_drivepath = "$PROJECT";
+    std::filesystem::path wheel_filepath = argv[4];
+    std::filesystem::path terrain_filepath = argv[5];
+    std::filesystem::path data_drivepath = argv[6];
 
     try {
         WheelSimulator simulator(slip, sim_endtime, batch_dir, wheel_filepath, terrain_filepath, data_drivepath);
