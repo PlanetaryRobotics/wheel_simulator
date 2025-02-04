@@ -15,9 +15,9 @@ int main(int argc, char* argv[]) {
     double sim_endtime = std::atof(argv[2]);
     std::string batch_dir = argv[3];
 
-    std::filesystem::path wheel_filepath = "/usr/local/share/chrono/data/robot/moonranger/obj/moonranger_wheel.obj";
-    std::filesystem::path terrain_filepath = "/home/moonshot-chrono/sims/DEM-Engine/build_3/DemoOutput_GRCPrep_Part2/GRC_3e5_Reduced_Footprint.csv";
-    std::filesystem::path data_drivepath = "/data";
+    std::filesystem::path wheel_filepath = "~/moonranger_mobility/meshes/moonranger_wheel.obj";
+    std::filesystem::path terrain_filepath = "~/moonranger_mobility/terrain/grc_3e5_Reduced_Footprint.csv";
+    std::filesystem::path data_drivepath = "$PROJECT";
 
     try {
         WheelSimulator simulator(slip, sim_endtime, batch_dir, wheel_filepath, terrain_filepath, data_drivepath);

@@ -22,7 +22,7 @@ set(TESTS
 find_package(CUDAToolkit REQUIRED)
 
 # Find DEME library
-set(DEME_DIR "/home/moonshot-chrono/Documents/DEM-Engine/build/DEME/")  # Set the DEME directory here if needed
+set(DEME_DIR "~/moonranger_mobility/DEM-Engine/build/DEME")  # Set the DEME directory here if needed
 list(APPEND CMAKE_PREFIX_PATH "${DEME_DIR}")
 find_package(DEME REQUIRED)
 
