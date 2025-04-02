@@ -18,7 +18,6 @@ int main(int argc, char* argv[]) {
     std::filesystem::path wheel_filepath = argv[4];
     std::filesystem::path terrain_filepath = argv[5];
     std::filesystem::path data_drivepath = argv[6];
-    double scale_factor = std::atof(argv[7]);
 
     try {
         WheelSimulator simulator(slip, sim_endtime, batch_dir, wheel_filepath, terrain_filepath, data_drivepath);
