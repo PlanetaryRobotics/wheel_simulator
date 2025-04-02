@@ -20,7 +20,8 @@ using namespace deme;
 WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::string& batch_dir,
                     const std::filesystem::path& wheel_filepath,
                     const std::filesystem::path& terrain_filepath,
-                    const std::filesystem::path& data_drivepath)
+                    const std::filesystem::path& data_drivepath,
+                    double scale_factor)
     : slip_(slip),
       sim_endtime_(sim_endtime),
       terrain_filepath_(terrain_filepath),
@@ -35,6 +36,7 @@ WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::strin
       frame_time_(1.0 / Constants::FPS),
       total_pressure_(0.0f),
       added_pressure_(0.0f),
+      scale_factor_(scale_factor),
       mat_type_terrain_(DEMSim_.LoadMaterial({
                         {"E", 1e9},
                         {"nu", 0.3},
@@ -181,7 +183,7 @@ void WheelSimulator::PrepareParticles() {
     // Scale factors
     std::vector<double> scales = {0.0014, 0.00075833, 0.00044, 0.0003, 0.0002, 0.00018333, 0.00017};
     for (auto& scale : scales) {
-        scale *= 10.0;
+        scale *= scale_factor_*10.0;
     }
 
     std::cout << "Loading clump templates..." << std::endl;

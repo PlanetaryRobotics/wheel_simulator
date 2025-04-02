@@ -28,7 +28,8 @@ public:
                     const std::string& batch_dir, 
                     const std::filesystem::path& wheel_filepath,
                     const std::filesystem::path& terrain_filepath,
-                    const std::filesystem::path& data_drivepath
+                    const std::filesystem::path& data_drivepath,
+                    double scale_factor
                 );
 
     /**
@@ -85,6 +86,7 @@ private:
 
     // Wheel
     Wheel wheel_;  // Uses wheel structure from Wheel.h
+    double scale_factor_;
 
     // Different families. These are used by the DEM engine to group elements
     // Elements within a family can have their motion properties all set at once.
