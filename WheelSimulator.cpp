@@ -42,7 +42,7 @@ WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::strin
                         {"mu", 0.5},
                         {"Crr", 0.00}
                     })),
-      wheel_(0.085f, 0.06f, 0.238f, wheel_filepath) // initializes wheel radius, width, and mass. TODO: load in from a wheel file, instead of hardcoded
+      wheel_(0.091f, 0.085f, 0.06f, 0.238f, wheel_filepath) // initializes wheel outer radius, effective radius, width, and mass. TODO: load in from a wheel file, instead of hardcoded
 {
     // Constructor body. Can remain empty or initialize additional members if necessary
 }
@@ -278,7 +278,7 @@ void WheelSimulator::ConfigureWheel() {
 void WheelSimulator::SetupPrescribedMotions() {
     // Families' prescribed motions
     float w_r = 0.2f;  // TODO: Change this so it isn't hardcoded
-    float v_ref = w_r * wheel_.radius;
+    float v_ref = w_r * wheel_.r_effective;
 
     //TODO: Turn family numbers into enums with descriptive names
 
@@ -316,7 +316,7 @@ void WheelSimulator::PerformInitialSink() {
     float max_z = max_z_finder_->GetValue();
     std::cout << "Setting wheel position" << std::endl;
     if (wheel_tracker_) {
-        wheel_tracker_->SetPos(make_float3(-0.25, 0, max_z + 0.01 + wheel_.radius));
+        wheel_tracker_->SetPos(make_float3(-0.25, 0, max_z + 0.01 + wheel_.r_outer));
     } else {
         std::cerr << "Error: wheel_tracker_ is null!" << std::endl;
     }
