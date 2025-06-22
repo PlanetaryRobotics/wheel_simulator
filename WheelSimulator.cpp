@@ -42,7 +42,7 @@ WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::strin
                         {"mu", 0.5},
                         {"Crr", 0.00}
                     })),
-      wheel_(0.091f, 0.085f, 0.06f, 0.238f, wheel_filepath) // initializes wheel radius, width, and mass. TODO: load in from a wheel file, instead of hardcoded
+      wheel_(0.091f, 0.085f, 0.06f, 0.238f, wheel_filepath) // initializes wheel outer radius, effective radius, width, and mass. TODO: load in from a wheel file, instead of hardcoded
 {
     // Constructor body. Can remain empty or initialize additional members if necessary
 }
