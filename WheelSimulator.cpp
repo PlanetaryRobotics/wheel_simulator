@@ -2,6 +2,8 @@
 #include "WheelSimulator.h"
 #include "Utils.h"
 #include "Constants.h"
+#include "json.hpp"
+using json = nlohmann::json;
 
 #include <chrono>
 #include <cmath>
@@ -17,15 +19,26 @@
 
 using namespace deme;
 
-WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::string& batch_dir,
+WheelSimulator::WheelSimulator(float width, float r_outer,
+                    float r_effective,
+                    int grouser_num, double slip, double sim_endtime, 
+                    const std::string& batch_dir,
+                    const std::string& output_dir,
                     const std::filesystem::path& wheel_filepath,
                     const std::filesystem::path& terrain_filepath,
-                    const std::filesystem::path& data_drivepath)
-    : slip_(slip),
+                    const std::filesystem::path& data_drivepath,
+                    const json param)
+    : width_(width),
+      r_outer(r_outer),
+      r_effective_(r_effective),
+      grouser_num_(grouser_num),
+      slip_(slip),
       sim_endtime_(sim_endtime),
       terrain_filepath_(terrain_filepath),
       batch_dir_(batch_dir),
+      output_dir_(output_dir),
       data_dir_(data_drivepath),
+      param_(param),
       step_size_(Constants::INITIAL_STEP_SIZE),
       fps_(Constants::FPS),
       out_steps_(static_cast<unsigned int>(1.0 / (Constants::FPS * Constants::INITIAL_STEP_SIZE))),
@@ -42,12 +55,19 @@ WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::strin
                         {"mu", 0.5},
                         {"Crr", 0.00}
                     })),
-      wheel_(0.091f, 0.085f, 0.06f, 0.238f, wheel_filepath) // initializes wheel outer radius, effective radius, width, and mass. TODO: load in from a wheel file, instead of hardcoded
+      wheel_(r_outer, r_effective, width, 0.238f, wheel_filepath) // initializes wheel outer radius, effective
+      //  radius, width, and mass. TODO: load in from a wheel file, instead of hardcoded
 {
     // Constructor body. Can remain empty or initialize additional members if necessary
 }
 
 void WheelSimulator::PrepareSimulation() {
+    std::cout << "terrain" << terrain_filepath_ <<std::endl;
+    std::cout << "data dir" << data_dir_ <<std::endl;
+    std::cout << "grouser num" << grouser_num_ <<std::endl;
+    std::cout << "outer radius" << r_outer <<std::endl;
+    std::cout << "effective radius" << r_effective <<std::endl;
+    
     std::cout << "Intializing Output Directories" <<std::endl;
     InitializeOutputDirectories();
     std::cout << "Writing Sim Parameters" <<std::endl;
@@ -79,7 +99,13 @@ void WheelSimulator::RunSimulation() {
 
 // Create the output folder structure
 void WheelSimulator::InitializeOutputDirectories() {
-    out_dir_ = data_dir_ / batch_dir_ / (Utils::getCurrentTimeStamp() + "_SkidSteerSim_" + std::to_string(slip_));
+    out_dir_;
+    if(output_dir_.empty()){
+        out_dir_ = data_dir_ / batch_dir_ / (Utils::getCurrentTimeStamp() + "_SkidSteerSim_" + std::to_string(slip_));
+    }
+    else{
+        out_dir_ = data_dir_ / batch_dir_ / output_dir_;
+    }
     rover_dir_ = out_dir_ / "rover";
     particles_dir_ = out_dir_ / "particles";
 
@@ -99,11 +125,7 @@ void WheelSimulator::WriteSimulationParameters() {
     if (!output_params_) {
         throw std::runtime_error("Failed to open params.json for writing.");
     }
-    // TODO: Add the rest of the output params. Right now we are just recording the slip.
-    output_params_ << "{\n"
-                   << "\t\"slip\": " 
-                   << slip_ 
-                   << "\n}";
+    output_params_ << param_.dump(4);
     output_params_.close();
 }
 
@@ -396,8 +418,8 @@ void WheelSimulator::RunSimulationLoop() {
 
     // Active box domain parameters
     // TODO: This should be based on the wheel size, not hardcoded
-    float box_halfsize_x = 0.085f * 1.25f;
-    float box_halfsize_y = 0.06f * 2.0f;
+    float box_halfsize_x = r_outer * 1.25f;
+    float box_halfsize_y = width_ * 2.0f;
 
     for (double t = 0.0; t < sim_endtime_; t += step_size_, curr_step_++) {
         if (curr_step_ % out_steps_ == 0) {
