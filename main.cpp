@@ -45,22 +45,25 @@ int main(int argc, char* argv[]) {
 
     
     std::filesystem::path wheel_json_path = wheel_directory / "wheel_parameters.json";
-    std::ifstream file(wheel_json_path);
-    if (!file) {
+    std::ifstream file2(wheel_json_path);
+    if (!file2) {
         std::cerr << "Could not open " << wheel_json_path << "\n";
         return 1;
     }
 
     json wheel_json;
-    file >> wheel_json;
+    file2 >> wheel_json;
 
     // read wheel json parameters
     float width = wheel_json["width"];
-    float rim_radius = wheel_json.value["rim_radius"]; //rim_radius is effective radius
+    float rim_radius = wheel_json["rim_radius"]; //rim_radius is effective radius
     float outer_radius = wheel_json["outer_radius"];
+    float mass = 0.238; // TODO: read from file
+
+    Wheel wheel(outer_radius, rim_radius, width, mass, wheel_filepath);
 
     try {
-        WheelSimulator simulator(outer_radius, rim_radius, width, slip, sim_endtime, 
+        WheelSimulator simulator(wheel, slip, sim_endtime, 
                     batch_dir, output_dir, wheel_filepath, terrain_filepath, data_drivepath, job_json);
         simulator.PrepareSimulation();
         simulator.RunSimulation();

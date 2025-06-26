@@ -2,7 +2,7 @@
 #include "WheelSimulator.h"
 #include "Utils.h"
 #include "Constants.h"
-#include "json.hpp"
+#include "include/json.hpp"
 using json = nlohmann::json;
 
 #include <chrono>
@@ -19,8 +19,7 @@ using json = nlohmann::json;
 
 using namespace deme;
 
-WheelSimulator::WheelSimulator(float r_outer,
-                    float r_effective, float width, 
+WheelSimulator::WheelSimulator(Wheel wheel,
                     double slip, double sim_endtime, 
                     const std::string& batch_dir,
                     const std::string& output_dir,
@@ -28,10 +27,7 @@ WheelSimulator::WheelSimulator(float r_outer,
                     const std::filesystem::path& terrain_filepath,
                     const std::filesystem::path& data_drivepath,
                     const json param)
-    : width_(width),
-      r_outer(r_outer),
-      r_effective_(r_effective),
-      slip_(slip),
+    : slip_(slip),
       sim_endtime_(sim_endtime),
       terrain_filepath_(terrain_filepath),
       batch_dir_(batch_dir),
@@ -54,8 +50,8 @@ WheelSimulator::WheelSimulator(float r_outer,
                         {"mu", 0.5},
                         {"Crr", 0.00}
                     })),
-      wheel_(r_outer, r_effective, width, 0.238f, wheel_filepath) // initializes wheel outer radius, effective
-      //  radius, width, and mass. TODO: load in from a wheel file, instead of hardcoded
+      wheel_(wheel) // initializes wheel 
+      
 {
     // Constructor body. Can remain empty or initialize additional members if necessary
 }
@@ -63,8 +59,8 @@ WheelSimulator::WheelSimulator(float r_outer,
 void WheelSimulator::PrepareSimulation() {
     std::cout << "terrain" << terrain_filepath_ <<std::endl;
     std::cout << "data dir" << data_dir_ <<std::endl;
-    std::cout << "outer radius" << r_outer <<std::endl;
-    std::cout << "effective radius" << r_effective <<std::endl;
+    std::cout << "outer radius" << wheel_.r_outer <<std::endl;
+    std::cout << "effective radius" << wheel_.r_effective <<std::endl;
     
     std::cout << "Intializing Output Directories" <<std::endl;
     InitializeOutputDirectories();
@@ -166,7 +162,6 @@ void WheelSimulator::ConfigureDEMSolver() {
 
 // Load in the particles
 void WheelSimulator::PrepareParticles() {
-
     // Prepare Terrain Particles
     // Load clump types and properties
     DEMSim_.SetMaterialPropertyPair("mu", DEMSim_.LoadMaterial(wheel_.material_properties), mat_type_terrain_, 0.8);
@@ -303,11 +298,11 @@ void WheelSimulator::SetupPrescribedMotions() {
     //TODO: Turn family numbers into enums with descriptive names
 
     DEMSim_.SetFamilyPrescribedAngVel(Family::ROTATING, "0", Utils::toStringWithPrecision(w_r), "0", false);
-    DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / 0.238f)); // TODO: What does this number mean?
+    DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / wheel_.mass)); // TODO: What does this number mean?
 
     DEMSim_.SetFamilyPrescribedAngVel(Family::ROTATING_AND_TRANSLATING, "0", Utils::toStringWithPrecision(w_r), "0", false);
     DEMSim_.SetFamilyPrescribedLinVel(Family::ROTATING_AND_TRANSLATING, Utils::toStringWithPrecision(v_ref * (1.0 - slip_)), "0", "none", false);
-    DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING_AND_TRANSLATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / 0.238f)); // TODO: What does this number mean?
+    DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING_AND_TRANSLATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / wheel_.mass)); // TODO: What does this number mean?
 }
 
 void WheelSimulator::SetupInspectors() {
@@ -416,8 +411,8 @@ void WheelSimulator::RunSimulationLoop() {
 
     // Active box domain parameters
     // TODO: This should be based on the wheel size, not hardcoded
-    float box_halfsize_x = r_outer * 1.25f;
-    float box_halfsize_y = width_ * 2.0f;
+    float box_halfsize_x = wheel_.r_outer * 1.25f;
+    float box_halfsize_y = wheel_.width * 2.0f;
 
     for (double t = 0.0; t < sim_endtime_; t += step_size_, curr_step_++) {
         if (curr_step_ % out_steps_ == 0) {
