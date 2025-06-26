@@ -19,8 +19,8 @@ using json = nlohmann::json;
 
 using namespace deme;
 
-WheelSimulator::WheelSimulator(float width, float r_outer,
-                    float r_effective,
+WheelSimulator::WheelSimulator(float r_outer,
+                    float r_effective, float width, 
                     double slip, double sim_endtime, 
                     const std::string& batch_dir,
                     const std::string& output_dir,

@@ -23,12 +23,15 @@ public:
      * @param terrain_filepath Path to the .csv file containing the pre-settled terrain data.
      * @param data_drivepath Path to the data drive
      */
-    WheelSimulator( double slip, 
+    WheelSimulator( float r_outer, float r_effective, float width, 
+                    double slip, 
                     double sim_endtime, 
                     const std::string& batch_dir, 
+                    const std::string& output_dir,
                     const std::filesystem::path& wheel_filepath,
                     const std::filesystem::path& terrain_filepath,
                     const std::filesystem::path& data_drivepath
+                    const json param
                 );
 
     /**
@@ -46,7 +49,7 @@ private:
     double slip_;
     double sim_endtime_;
     std::string batch_dir_;
-
+    
     std::filesystem::path terrain_filepath_;
 
     // File System Paths
