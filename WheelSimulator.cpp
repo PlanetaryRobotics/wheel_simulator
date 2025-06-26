@@ -283,11 +283,11 @@ void WheelSimulator::SetupPrescribedMotions() {
     //TODO: Turn family numbers into enums with descriptive names
 
     DEMSim_.SetFamilyPrescribedAngVel(Family::ROTATING, "0", Utils::toStringWithPrecision(w_r), "0", false);
-    DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / 0.238f)); // TODO: What does this number mean?
+    DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / wheel_.mass)); // TODO: What does this number mean?
 
     DEMSim_.SetFamilyPrescribedAngVel(Family::ROTATING_AND_TRANSLATING, "0", Utils::toStringWithPrecision(w_r), "0", false);
     DEMSim_.SetFamilyPrescribedLinVel(Family::ROTATING_AND_TRANSLATING, Utils::toStringWithPrecision(v_ref * (1.0 - slip_)), "0", "none", false);
-    DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING_AND_TRANSLATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / 0.238f)); // TODO: What does this number mean?
+    DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING_AND_TRANSLATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / wheel_.mass)); // TODO: What does this number mean?
 }
 
 void WheelSimulator::SetupInspectors() {
@@ -396,8 +396,8 @@ void WheelSimulator::RunSimulationLoop() {
 
     // Active box domain parameters
     // TODO: This should be based on the wheel size, not hardcoded
-    float box_halfsize_x = 0.085f * 1.25f;
-    float box_halfsize_y = 0.06f * 2.0f;
+    float box_halfsize_x = wheel_.r_outer * 1.25f;
+    float box_halfsize_y = wheel_.width * 2.0f;
 
     for (double t = 0.0; t < sim_endtime_; t += step_size_, curr_step_++) {
         if (curr_step_ % out_steps_ == 0) {
@@ -424,7 +424,7 @@ void WheelSimulator::RunSimulationLoop() {
             WriteFrameData(t, forces);
 
             // Termination condition
-            // if (wheel_tracker_->Pos().x > (world_size_x / 2.0f - wheel_radius * 1.2f)) {
+            // if (wheel_tracker_->Pos().x > (world_size_x / 2.0f - wheel_.r_outer * 1.2f)) {
             //     std::cout << "This is far enough, stopping the simulation..." << std::endl;
             //     DEMSim_.DoDynamicsThenSync(0.0f);
             //     break;
