@@ -21,7 +21,7 @@ using namespace deme;
 
 WheelSimulator::WheelSimulator(float width, float r_outer,
                     float r_effective,
-                    int grouser_num, double slip, double sim_endtime, 
+                    double slip, double sim_endtime, 
                     const std::string& batch_dir,
                     const std::string& output_dir,
                     const std::filesystem::path& wheel_filepath,
@@ -31,7 +31,6 @@ WheelSimulator::WheelSimulator(float width, float r_outer,
     : width_(width),
       r_outer(r_outer),
       r_effective_(r_effective),
-      grouser_num_(grouser_num),
       slip_(slip),
       sim_endtime_(sim_endtime),
       terrain_filepath_(terrain_filepath),
@@ -64,7 +63,6 @@ WheelSimulator::WheelSimulator(float width, float r_outer,
 void WheelSimulator::PrepareSimulation() {
     std::cout << "terrain" << terrain_filepath_ <<std::endl;
     std::cout << "data dir" << data_dir_ <<std::endl;
-    std::cout << "grouser num" << grouser_num_ <<std::endl;
     std::cout << "outer radius" << r_outer <<std::endl;
     std::cout << "effective radius" << r_effective <<std::endl;
     

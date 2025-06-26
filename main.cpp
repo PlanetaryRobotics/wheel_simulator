@@ -30,9 +30,17 @@ int main(int argc, char* argv[]) {
     std::string batch_dir = argv[2];
     std::string output_dir = job_json.value("output_dir", "");
 
-    std::filesystem::path wheel_directory = job_json.value("wheel_folder_path");
-    std::filesystem::path wheel_file = wheel_directory / "wheel.obj";
-    std::filesystem::path terrain_filepath = job_json.value("terrain_filepath");
+    if(!job_json.contains("wheel_folder_path")){
+        std::cerr << "Error: 'wheel_folder_path' is missing from the job_json\n";
+        return 1;
+    }
+    std::filesystem::path wheel_directory = job_json["wheel_folder_path"];
+    std::filesystem::path wheel_filepath = wheel_directory / "wheel.obj";
+    if(!job_json.contains("terrain_filepath")){
+        std::cerr << "Error: 'terrain_filepath' is missing from the job_json\n";
+        return 1;
+    }
+    std::filesystem::path terrain_filepath = job_json["terrain_filepath"];
     std::filesystem::path data_drivepath =  job_json.value("data_drivepath", "/ocean/projects/mch240013p/matthies/");
 
     
@@ -47,12 +55,12 @@ int main(int argc, char* argv[]) {
     file >> wheel_json;
 
     // read wheel json parameters
-    float width = wheel_json.value("width");
-    float rim_radius = wheel_json.value("rim_radius"); //rim_radius is effective radius
-    float outer_radius = wheel_json.value("outer_radius");
+    float width = wheel_json["width"];
+    float rim_radius = wheel_json.value["rim_radius"]; //rim_radius is effective radius
+    float outer_radius = wheel_json["outer_radius"];
 
     try {
-        WheelSimulator simulator(outer_radius, rim_radius, width, grouser_num, slip, sim_endtime, 
+        WheelSimulator simulator(outer_radius, rim_radius, width, slip, sim_endtime, 
                     batch_dir, output_dir, wheel_filepath, terrain_filepath, data_drivepath, job_json);
         simulator.PrepareSimulation();
         simulator.RunSimulation();
