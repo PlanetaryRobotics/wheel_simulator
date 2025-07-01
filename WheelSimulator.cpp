@@ -19,22 +19,20 @@ using json = nlohmann::json;
 
 using namespace deme;
 
-WheelSimulator::WheelSimulator(Wheel wheel,
+WheelSimulator::WheelSimulator(Wheel wheel, Terrain terrain,
                     double slip, double sim_endtime, 
                     const std::string& batch_dir,
                     const std::string& output_dir,
-                    const std::filesystem::path& wheel_filepath,
-                    const std::filesystem::path& terrain_filepath,
                     const std::filesystem::path& data_drivepath,
-                    const json param)
+                    const json param, float rotational_velocity,
+                    float step_size, float scale_factor)
     : slip_(slip),
       sim_endtime_(sim_endtime),
-      terrain_filepath_(terrain_filepath),
       batch_dir_(batch_dir),
       output_dir_(output_dir),
       data_dir_(data_drivepath),
       param_(param),
-      step_size_(Constants::INITIAL_STEP_SIZE),
+      step_size_(step_size),
       fps_(Constants::FPS),
       out_steps_(static_cast<unsigned int>(1.0 / (Constants::FPS * Constants::INITIAL_STEP_SIZE))),
       report_steps_(static_cast<unsigned int>(1.0 / (Constants::REPORT_PERTIMESTEP * Constants::INITIAL_STEP_SIZE))),
@@ -50,14 +48,17 @@ WheelSimulator::WheelSimulator(Wheel wheel,
                         {"mu", 0.5},
                         {"Crr", 0.00}
                     })),
-      wheel_(wheel) // initializes wheel 
+      rot_velocity_(rotational_velocity),
+      scale_factor_(scale_factor),
+      wheel_(wheel) // initializes wheel
+      terrain_(terrain) 
       
 {
     // Constructor body. Can remain empty or initialize additional members if necessary
 }
 
 void WheelSimulator::PrepareSimulation() {
-    std::cout << "terrain" << terrain_filepath_ <<std::endl;
+    std::cout << "terrain" << terrain_.terrain_filepath <<std::endl;
     std::cout << "data dir" << data_dir_ <<std::endl;
     std::cout << "outer radius" << wheel_.r_outer <<std::endl;
     std::cout << "effective radius" << wheel_.r_effective <<std::endl;
@@ -169,14 +170,14 @@ void WheelSimulator::PrepareParticles() {
     std::cout << "Defining World..." << std::endl;
 
     // Define world dimensions
-    double world_size_x = 1.0;
-    double world_size_y = 0.3;
-    double world_size_z = 2.0;
+    double world_size_x = terrain_.world_size_x;
+    double world_size_y = terrain_.world_size_y;
+    double world_size_z = terrain_.world_size_z;
     DEMSim_.InstructBoxDomainDimension(world_size_x, world_size_y, world_size_z);
     DEMSim_.InstructBoxDomainBoundingBC("top_open", mat_type_terrain_);
 
     // Add boundary planes
-    float bottom = -0.5f;
+    float bottom = terrain_.world_bottom;
     DEMSim_.AddBCPlane(make_float3(0.0f, 0.0f, bottom), make_float3(0.0f, 0.0f, 1.0f), mat_type_terrain_);
     DEMSim_.AddBCPlane(make_float3(0.0f, static_cast<float>(world_size_y) / 2.0f, 0.0f), make_float3(0.0f, -1.0f, 0.0f), mat_type_terrain_);
     DEMSim_.AddBCPlane(make_float3(0.0f, -static_cast<float>(world_size_y) / 2.0f, 0.0f), make_float3(0.0f, 1.0f, 0.0f), mat_type_terrain_);
@@ -184,11 +185,11 @@ void WheelSimulator::PrepareParticles() {
     DEMSim_.AddBCPlane(make_float3(static_cast<float>(world_size_x) / 2.0f, 0.0f, 0.0f), make_float3(-1.0f, 0.0f, 0.0f), mat_type_terrain_);
 
     // Define terrain particle templates
-    float terrain_density = 2.6e3f;
-    float volume1 = 4.2520508f;
+    float terrain_density = terrain_.terrain_density;
+    float volume1 = terrain_.volume1;
     float mass1 = terrain_density * volume1;
     float3 MOI1 = make_float3(1.6850426f, 1.6375114f, 2.1187753f) * terrain_density;
-    float volume2 = 2.1670011f;
+    float volume2 = terrain_.volume2;
     float mass2 = terrain_density * volume2;
     float3 MOI2 = make_float3(0.57402126f, 0.60616378f, 0.92890173f) * terrain_density;
 
@@ -196,7 +197,7 @@ void WheelSimulator::PrepareParticles() {
     // Scale factors
     std::vector<double> scales = {0.0014, 0.00075833, 0.00044, 0.0003, 0.0002, 0.00018333, 0.00017};
     for (auto& scale : scales) {
-        scale *= 10.0;
+        scale *= scale_factor_;
     }
 
     std::cout << "Loading clump templates..." << std::endl;
@@ -231,8 +232,8 @@ void WheelSimulator::PrepareParticles() {
     std::unordered_map<std::string, std::vector<float4>> clump_quaternion;
 
     try {
-        clump_xyz = DEMSim_.ReadClumpXyzFromCsv(terrain_filepath_);
-        clump_quaternion = DEMSim_.ReadClumpQuatFromCsv(terrain_filepath_);
+        clump_xyz = DEMSim_.ReadClumpXyzFromCsv(terrain_.terrain_filepath);
+        clump_quaternion = DEMSim_.ReadClumpQuatFromCsv(terrain_.terrain_filepath);
     } catch (...) {
         throw std::runtime_error("Failed to read clump checkpoint file. Ensure the file exists and is correctly formatted.");
     }
@@ -292,7 +293,7 @@ void WheelSimulator::ConfigureWheel() {
 
 void WheelSimulator::SetupPrescribedMotions() {
     // Families' prescribed motions
-    float w_r = 0.2f;  // TODO: Change this so it isn't hardcoded
+    float w_r = rot_velocity_;  // TODO: Change this so it isn't hardcoded
     float v_ref = w_r * wheel_.r_effective;
 
     //TODO: Turn family numbers into enums with descriptive names

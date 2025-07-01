@@ -25,7 +25,7 @@ struct Wheel {
         IYY = mass * r_outer * r_outer / 2.0f;
         IXX = (mass / 12.0f) * (3.0f * r_outer * r_outer + width * width);
         IZZ = IXX;
-
+        
         // Default material properties
         material_properties = {
             {"E", 1e9},       // Young's modulus
