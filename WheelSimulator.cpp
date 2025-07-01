@@ -53,6 +53,7 @@ WheelSimulator::WheelSimulator(Wheel wheel, Terrain terrain,
       wheel_(wheel), // initializes wheel
       terrain_(terrain) 
       
+      
 {
     // Constructor body. Can remain empty or initialize additional members if necessary
 }
@@ -276,7 +277,7 @@ void WheelSimulator::PrepareParticles() {
 void WheelSimulator::ConfigureWheel() {
     // Define simulation parameters
     // TODO: Change this so it isn't hardcoded
-    float total_mass = 4.5f; // kg
+    float total_mass = wheel_.total_mass; // kg
     total_pressure_ = total_mass * Constants::GRAVITY_MAGNITUDE; // N
     added_pressure_ = (total_mass - wheel_.mass) * Constants::GRAVITY_MAGNITUDE; // N
 

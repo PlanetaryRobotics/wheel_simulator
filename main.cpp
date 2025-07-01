@@ -85,14 +85,15 @@ int main(int argc, char* argv[]) {
     float volume1 = terrain_json.value("volume1", 4.2520508);
     float volume2 = terrain_json.value("volume2", 2.1670011);
 
-    Wheel wheel(outer_radius, rim_radius, width, mass, wheel_filepath);
+    Wheel wheel(outer_radius, rim_radius, width, mass, wheel_filepath, total_mass);
     Terrain terrain(terrain_filepath, world_size_x, world_size_y, world_size_z, world_bottom,
                     terrain_density, volume1, volume2);
 
     try {
         WheelSimulator simulator(wheel, terrain, slip, sim_endtime, 
                     batch_dir, output_dir, data_drivepath, 
-                    job_json, rotational_velocity, step_size, scale_factor, total_mass);
+                    job_json, rotational_velocity, step_size, 
+                    scale_factor);
         simulator.PrepareSimulation();
         simulator.RunSimulation();
     } catch (const std::exception& e) {
