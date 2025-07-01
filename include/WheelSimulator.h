@@ -10,6 +10,7 @@
 #include <filesystem>
 #include <vector>
 #include "Wheel.h"
+#include "Terrain.h"
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -56,7 +57,7 @@ private:
     json param_;
     float rot_velocity_;
     scale_factor_;
-    
+
     
     std::filesystem::path terrain_filepath_;
 
