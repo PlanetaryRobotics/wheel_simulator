@@ -56,7 +56,7 @@ private:
     std::string output_dir_;
     json param_;
     float rot_velocity_;
-    scale_factor_;
+    float scale_factor_;
 
     
     std::filesystem::path terrain_filepath_;

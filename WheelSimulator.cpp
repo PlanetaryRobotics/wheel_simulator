@@ -50,7 +50,7 @@ WheelSimulator::WheelSimulator(Wheel wheel, Terrain terrain,
                     })),
       rot_velocity_(rotational_velocity),
       scale_factor_(scale_factor),
-      wheel_(wheel) // initializes wheel
+      wheel_(wheel), // initializes wheel
       terrain_(terrain) 
       
 {

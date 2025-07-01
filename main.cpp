@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
     float volume2 = terrain_json.value("volume2", 2.1670011);
 
     Wheel wheel(outer_radius, rim_radius, width, mass, wheel_filepath);
-    Terrain terrain(terrain_filepath, world_size_x, world_size_y, world_size_z, world_bottom
+    Terrain terrain(terrain_filepath, world_size_x, world_size_y, world_size_z, world_bottom,
                     terrain_density, volume1, volume2);
 
     try {
