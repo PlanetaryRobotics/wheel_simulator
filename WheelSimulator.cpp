@@ -97,7 +97,7 @@ void WheelSimulator::RunSimulation() {
 void WheelSimulator::InitializeOutputDirectories() {
     out_dir_;
     if(output_dir_.empty()){
-        out_dir_ = data_dir_ / batch_dir_ / (Utils::getCurrentTimeStamp() + "_SkidSteerSim_" + std::to_string(slip_));
+        out_dir_ = data_dir_ / batch_dir_ / ("SkidSteerSim_" + std::to_string(slip_));
     }
     else{
         out_dir_ = data_dir_ / batch_dir_ / output_dir_;
