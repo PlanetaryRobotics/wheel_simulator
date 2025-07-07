@@ -9,9 +9,9 @@ using json = nlohmann::json;
 
 int main(int argc, char* argv[]) {
     // Process input data
-    if (argc != 3) {
+    if (argc != 4) {
         // std::cerr << "Usage: ./WheelSimulator <slip> <sim_endtime> <batch_dir_name> <wheel_path> <terrain_path> <data_path>" << std::endl;
-        std::cerr << "Usage: ./WheelSimulator <input_path>" << std::endl;
+        std::cerr << "Usage: ./WheelSimulator <job_json_path> <batch_name> <slip>" << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     file >> job_json;
 
     // Import slip and batch directory from CLI arguments
-    double slip = job_json.value("slip", 0.2);
+    double slip = argv[3];
     double sim_endtime = job_json.value("sim_endtime", 5);
     std::string batch_dir = argv[2];
     std::string output_dir = job_json.value("output_dir", "");
