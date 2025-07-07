@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 
     // Import slip and batch directory from CLI arguments
     double slip = std::atof(argv[3]);
-    double sim_endtime = job_json.value("sim_endtime", 5);
+    double sim_endtime = job_json.value("sim_endtime", 0.1);
     std::string batch_dir = argv[2];
     std::string output_dir = job_json.value("output_dir", "");
     float rotational_velocity = job_json.value("rotational_velocity", 0.2);

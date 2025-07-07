@@ -95,13 +95,7 @@ void WheelSimulator::RunSimulation() {
 
 // Create the output folder structure
 void WheelSimulator::InitializeOutputDirectories() {
-    out_dir_;
-    if(output_dir_.empty()){
-        out_dir_ = data_dir_ / batch_dir_ / ("SkidSteerSim_" + std::to_string(slip_));
-    }
-    else{
-        out_dir_ = data_dir_ / batch_dir_ / output_dir_;
-    }
+    out_dir_ = data_dir_ / batch_dir_ / ("SkidSteerSim_" + std::to_string(slip_));
     rover_dir_ = out_dir_ / "rover";
     particles_dir_ = out_dir_ / "particles";
 
