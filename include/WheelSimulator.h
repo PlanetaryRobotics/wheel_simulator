@@ -27,14 +27,8 @@ public:
      * @param terrain_filepath Path to the .csv file containing the pre-settled terrain data.
      * @param data_drivepath Path to the data drive
      */
-    WheelSimulator( Wheel wheel, Terrain terrain,
-                    double slip, 
-                    double sim_endtime, 
-                    const std::string& batch_dir, 
-                    const std::string& output_dir,
-                    const std::filesystem::path& data_drivepath,
-                    const json param, float rotational_velocity,
-                    float step_size, float scale_factor
+    WheelSimulator( Wheel wheel, Terrain terrain, 
+                    SimParams simparams, const json param
                 );
     
 
@@ -51,13 +45,13 @@ public:
 
 private:
     // Simulation Parameters
-    double slip_;
-    double sim_endtime_;
-    std::string batch_dir_;
-    std::string output_dir_;
+    // double slip_;
+    // double sim_endtime_;
+    // std::string batch_dir_;
+    // std::string output_dir_;
     json param_;
-    float rot_velocity_;
-    float scale_factor_;
+    // float rot_velocity_;
+    // float scale_factor_;
 
     
     std::filesystem::path terrain_filepath_;
@@ -77,7 +71,7 @@ private:
     std::ofstream output_datafile_;
 
     // Simulation State
-    float step_size_;
+    // float step_size_;
     unsigned int fps_;
     unsigned int out_steps_;
     unsigned int report_steps_;
@@ -100,6 +94,9 @@ private:
     Wheel wheel_;  // Uses wheel structure from Wheel.h
     // Terrain
     Terrain terrain_; //Uses terrain structure from Terrain.h
+    //Sim Parameters
+    SimParams simparams_; //Uses Simparams structure form SimParams.h
+    
     // Different families. These are used by the DEM engine to group elements
     // Elements within a family can have their motion properties all set at once.
     // By default, all simulation elements have a family of 0.
