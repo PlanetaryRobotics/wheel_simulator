@@ -276,7 +276,7 @@ void WheelSimulator::ConfigureWheel() {
 
 void WheelSimulator::SetupPrescribedMotions() {
     // Families' prescribed motions
-    float w_r = simparams.rotational_velocity; 
+    float w_r = simparams_.rotational_velocity; 
     float v_ref = w_r * wheel_.r_effective;
 
     //TODO: Turn family numbers into enums with descriptive names
@@ -398,7 +398,7 @@ void WheelSimulator::RunSimulationLoop() {
     float box_halfsize_x = wheel_.r_outer * 1.25f;
     float box_halfsize_y = wheel_.width * 2.0f;
 
-    for (double t = 0.0; t < simparams_.sim_endtime; t += step_size_, curr_step_++) {
+    for (double t = 0.0; t < simparams_.sim_endtime; t += simparams_.step_size, curr_step_++) {
         if (curr_step_ % out_steps_ == 0) {
             UpdateActiveBoxDomain(box_halfsize_x, box_halfsize_y);
 

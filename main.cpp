@@ -84,8 +84,24 @@ int main(int argc, char* argv[]) {
     float terrain_density = terrain_json.value("terrain_density", 2.6e3);
     float volume1 = terrain_json.value("volume1", 4.2520508);
     float volume2 = terrain_json.value("volume2", 2.1670011);
-    float3 MOI1 = terrain_json.value("MOI1", make_float3(1.6850426f, 1.6375114f, 2.1187753f));
-    float3 MOI2 = terrain_json.value("MOI2", make_float3(0.57402126f, 0.60616378f, 0.92890173f));
+    float3 MOI1;
+    if(terrain_json.contains("MOI1") && terrain_json["MOI1"].is_array() && terrain_json["MOI1"].size() == 3){
+        MOI1.x = terrain_json["MOI1"][0].get<float>();
+        MOI1.y = terrain_json["MOI1"][1].get<float>();
+        MOI1.z = terrain_json["MOI1"][2].get<float>();
+    }
+    else{
+        MOI1 = make_float3(1.6850426f, 1.6375114f, 2.1187753f);
+    }
+    float3 MOI2;
+    if(terrain_json.contains("MOI2") && terrain_json["MOI2"].is_array() && terrain_json["MOI2"].size() == 3){
+        MOI2.x = terrain_json["MOI2"][0].get<float>();
+        MOI2.y = terrain_json["MOI2"][1].get<float>();
+        MOI2.z = terrain_json["MOI2"][2].get<float>();
+    }
+    else{
+        MOI2 = make_float3(0.57402126f, 0.60616378f, 0.92890173f);
+    }
 
     Wheel wheel(outer_radius, rim_radius, width, mass, wheel_filepath, total_mass);
     Terrain terrain(terrain_filepath, world_size_x, world_size_y, world_size_z, world_bottom,
