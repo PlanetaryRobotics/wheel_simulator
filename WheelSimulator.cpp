@@ -430,7 +430,7 @@ void WheelSimulator::RunSimulationLoop() {
             // }
         }
 
-        DEMSim_.DoDynamics(step_size_);
+        DEMSim_.DoDynamics(simparams_.step_size);
     }
 
     // End simulation timer
