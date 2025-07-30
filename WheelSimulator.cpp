@@ -19,20 +19,9 @@ using json = nlohmann::json;
 
 using namespace deme;
 
-WheelSimulator::WheelSimulator(Wheel wheel, Terrain terrain,
-                    double slip, double sim_endtime, 
-                    const std::string& batch_dir,
-                    const std::string& output_dir,
-                    const std::filesystem::path& data_drivepath,
-                    const json param, float rotational_velocity,
-                    float step_size, float scale_factor)
-    : slip_(slip),
-      sim_endtime_(sim_endtime),
-      batch_dir_(batch_dir),
-      output_dir_(output_dir),
-      data_dir_(data_drivepath),
-      param_(param),
-      step_size_(step_size),
+WheelSimulator::WheelSimulator(Wheel wheel, Terrain terrain, 
+                                SimParams simparams, const json param)
+    : param_(param),
       fps_(Constants::FPS),
       out_steps_(static_cast<unsigned int>(1.0 / (Constants::FPS * Constants::INITIAL_STEP_SIZE))),
       report_steps_(static_cast<unsigned int>(1.0 / (Constants::REPORT_PERTIMESTEP * Constants::INITIAL_STEP_SIZE))),
@@ -48,10 +37,9 @@ WheelSimulator::WheelSimulator(Wheel wheel, Terrain terrain,
                         {"mu", 0.5},
                         {"Crr", 0.00}
                     })),
-      rot_velocity_(rotational_velocity),
-      scale_factor_(scale_factor),
       wheel_(wheel), // initializes wheel
       terrain_(terrain) 
+      simparams_(simparams)
       
       
 {
@@ -60,7 +48,7 @@ WheelSimulator::WheelSimulator(Wheel wheel, Terrain terrain,
 
 void WheelSimulator::PrepareSimulation() {
     std::cout << "terrain" << terrain_.terrain_filepath <<std::endl;
-    std::cout << "data dir" << data_dir_ <<std::endl;
+    std::cout << "data dir" << simparams_.data_drivepath <<std::endl;
     std::cout << "outer radius" << wheel_.r_outer <<std::endl;
     std::cout << "effective radius" << wheel_.r_effective <<std::endl;
     
@@ -95,7 +83,7 @@ void WheelSimulator::RunSimulation() {
 
 // Create the output folder structure
 void WheelSimulator::InitializeOutputDirectories() {
-    out_dir_ = data_dir_ / batch_dir_ / ("SkidSteerSim_" + std::to_string(slip_));
+    out_dir_ = simparams_.data_drivepath / simparams_.batch_dir / (Utils::getCurrentTimeStamp() + "_SkidSteerSim_" + std::to_string(simparams_.slip));
     rover_dir_ = out_dir_ / "rover";
     particles_dir_ = out_dir_ / "particles";
 
@@ -148,7 +136,7 @@ void WheelSimulator::ConfigureDEMSolver() {
     DEMSim_.SetNoForceRecord();
 
     // World Settings
-    DEMSim_.SetInitTimeStep(step_size_);
+    DEMSim_.SetInitTimeStep(simparams_.step_size);
     DEMSim_.SetGravitationalAcceleration(make_float3(0.0f, 0.0f, -Constants::GRAVITY_MAGNITUDE));
     DEMSim_.SetMaxVelocity(Constants::MAX_VELOCITY);
     DEMSim_.SetErrorOutVelocity(Constants::ERROR_OUT_VELOCITY);
@@ -183,10 +171,10 @@ void WheelSimulator::PrepareParticles() {
     float terrain_density = terrain_.terrain_density;
     float volume1 = terrain_.volume1;
     float mass1 = terrain_density * volume1;
-    float3 MOI1 = make_float3(1.6850426f, 1.6375114f, 2.1187753f) * terrain_density;
+    float3 MOI1 = terrain_.MOI1 * terrain_density;
     float volume2 = terrain_.volume2;
     float mass2 = terrain_density * volume2;
-    float3 MOI2 = make_float3(0.57402126f, 0.60616378f, 0.92890173f) * terrain_density;
+    float3 MOI2 = terrain_.MOI2 * terrain_density;
 
 
     // Scale factors
@@ -288,7 +276,7 @@ void WheelSimulator::ConfigureWheel() {
 
 void WheelSimulator::SetupPrescribedMotions() {
     // Families' prescribed motions
-    float w_r = rot_velocity_;  // TODO: Change this so it isn't hardcoded
+    float w_r = simparams.rotational_velocity; 
     float v_ref = w_r * wheel_.r_effective;
 
     //TODO: Turn family numbers into enums with descriptive names
@@ -297,7 +285,7 @@ void WheelSimulator::SetupPrescribedMotions() {
     DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / wheel_.mass)); // TODO: What does this number mean?
 
     DEMSim_.SetFamilyPrescribedAngVel(Family::ROTATING_AND_TRANSLATING, "0", Utils::toStringWithPrecision(w_r), "0", false);
-    DEMSim_.SetFamilyPrescribedLinVel(Family::ROTATING_AND_TRANSLATING, Utils::toStringWithPrecision(v_ref * (1.0 - slip_)), "0", "none", false);
+    DEMSim_.SetFamilyPrescribedLinVel(Family::ROTATING_AND_TRANSLATING, Utils::toStringWithPrecision(v_ref * (1.0 - simparams_.slip)), "0", "none", false);
     DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING_AND_TRANSLATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / wheel_.mass)); // TODO: What does this number mean?
 }
 
@@ -410,7 +398,7 @@ void WheelSimulator::RunSimulationLoop() {
     float box_halfsize_x = wheel_.r_outer * 1.25f;
     float box_halfsize_y = wheel_.width * 2.0f;
 
-    for (double t = 0.0; t < sim_endtime_; t += step_size_, curr_step_++) {
+    for (double t = 0.0; t < simparams_.sim_endtime; t += step_size_, curr_step_++) {
         if (curr_step_ % out_steps_ == 0) {
             UpdateActiveBoxDomain(box_halfsize_x, box_halfsize_y);
 

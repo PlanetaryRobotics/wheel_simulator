@@ -11,6 +11,7 @@
 #include <vector>
 #include "Wheel.h"
 #include "Terrain.h"
+#include "SimParams.h"
 #include "json.hpp"
 using json = nlohmann::json;
 

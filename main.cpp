@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     float width = wheel_json["width"];
     float rim_radius = wheel_json["rim_radius"]; //rim_radius is effective radius
     float outer_radius = wheel_json["outer_radius"];
-    float mass = 0.238; // TODO: read from file
+    float mass = wheel_json.value("mass", 0.238);
     float total_mass = wheel_json.value("total_mass", 4.5);
 
     std::filesystem::path terrain_json_path = terrain_directory / "terrain_parameters.json";
@@ -84,16 +84,17 @@ int main(int argc, char* argv[]) {
     float terrain_density = terrain_json.value("terrain_density", 2.6e3);
     float volume1 = terrain_json.value("volume1", 4.2520508);
     float volume2 = terrain_json.value("volume2", 2.1670011);
+    float3 MOI1 = terrain_json.value("MOI1", make_float3(1.6850426f, 1.6375114f, 2.1187753f));
+    float3 MOI2 = terrain_json.value("MOI2", make_float3(0.57402126f, 0.60616378f, 0.92890173f));
 
     Wheel wheel(outer_radius, rim_radius, width, mass, wheel_filepath, total_mass);
     Terrain terrain(terrain_filepath, world_size_x, world_size_y, world_size_z, world_bottom,
-                    terrain_density, volume1, volume2);
+                    terrain_density, volume1, volume2, MOI1, MOI2);
+    SimParams simparams(slip, sim_endtime, batch_dir, output_dir, data_drivepath, 
+                        rotational_velocity, step_size, scale_factor);
 
     try {
-        WheelSimulator simulator(wheel, terrain, slip, sim_endtime, 
-                    batch_dir, output_dir, data_drivepath, 
-                    job_json, rotational_velocity, step_size, 
-                    scale_factor);
+        WheelSimulator simulator(wheel, terrain, simparams, job_json);
         simulator.PrepareSimulation();
         simulator.RunSimulation();
     } catch (const std::exception& e) {
