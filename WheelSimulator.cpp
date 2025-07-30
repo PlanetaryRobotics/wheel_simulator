@@ -316,6 +316,10 @@ void WheelSimulator::PerformInitialSink() {
     std::cout << "Setting wheel position" << std::endl;
     if (wheel_tracker_) {
         wheel_tracker_->SetPos(make_float3(-0.25, 0, max_z + 0.01 + wheel_.r_outer));
+        //offset wheel orientation a bit for steering test
+        const float rad = simparams_.angle_deg * (float)M_PI / 180.0f;
+        const float4 initQ = make_float4(0.0f, 0.0f, sinf(0.5f * rad), cosf(0.5f * rad));
+        wheel_tracker_->SetOriQ(initQ);
     } else {
         std::cerr << "Error: wheel_tracker_ is null!" << std::endl;
     }

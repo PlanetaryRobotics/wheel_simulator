@@ -33,6 +33,7 @@ int main(int argc, char* argv[]) {
     float step_size = job_json.value("step_size", 1e-6);
     float scale_factor = job_json.value("scale_factor", 10);
     std::filesystem::path data_drivepath =  job_json.value("data_drivepath", "/ocean/projects/mch240013p/matthies/");
+    float angle_deg = job_json.value("wheel_angle", 0.0);
 
 
     if(!job_json.contains("wheel_folder_path")){
@@ -107,7 +108,7 @@ int main(int argc, char* argv[]) {
     Terrain terrain(terrain_filepath, world_size_x, world_size_y, world_size_z, world_bottom,
                     terrain_density, volume1, volume2, MOI1, MOI2);
     SimParams simparams(slip, sim_endtime, batch_dir, output_dir, data_drivepath, 
-                        rotational_velocity, step_size, scale_factor);
+                        rotational_velocity, step_size, scale_factor, angle_deg);
 
     try {
         WheelSimulator simulator(wheel, terrain, simparams, job_json);
