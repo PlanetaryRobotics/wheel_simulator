@@ -14,9 +14,9 @@
 struct SimParams {
     double slip;
     double sim_endtime;
-    const std::string& batch_dir;
-    const std::string& output_dir;
-    const std::filesystem::path& data_drivepath;
+    const std::string batch_dir;
+    const std::string output_dir;
+    const std::filesystem::path data_drivepath;
     float rotational_velocity;
     float step_size;
     float scale_factor;
