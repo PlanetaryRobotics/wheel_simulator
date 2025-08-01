@@ -17,11 +17,12 @@
 
 using namespace deme;
 
-WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::string& batch_dir,
+WheelSimulator::WheelSimulator(double slip, double final_slip, double sim_endtime, const std::string& batch_dir,
                     const std::filesystem::path& wheel_filepath,
                     const std::filesystem::path& terrain_filepath,
                     const std::filesystem::path& data_drivepath)
     : slip_(slip),
+      final_slip_(final_slip),
       sim_endtime_(sim_endtime),
       terrain_filepath_(terrain_filepath),
       batch_dir_(batch_dir),
@@ -358,10 +359,11 @@ void WheelSimulator::UpdateActiveBoxDomain(float box_halfsize_x, float box_halfs
     std::cout << num_changed << " particles changed family number." << std::endl;
 }
 
-void WheelSimulator::WriteFrameData(double t, float3 forces) {
+void WheelSimulator::WriteFrameData(double t, double slip, float3 forces) {
     // Write a new row of summary data to output.csv.
     try {
-        output_datafile_<< t << "," 
+        output_datafile_<< t << ","
+                        << curr_slip << ","
                         << forces.x << "," 
                         << forces.y << "," 
                         << forces.z << ","
@@ -399,6 +401,11 @@ void WheelSimulator::RunSimulationLoop() {
     float box_halfsize_x = wheel_.r_outer * 1.25f;
     float box_halfsize_y = wheel_.width * 2.0f;
 
+     // Change in slip per step
+    double number_of_steps = sim_endtime_/step_size_;
+    double change_in_slip = (slip_ - final_slip_)/number_of_steps;
+    double curr_slip = slip_;
+
     for (double t = 0.0; t < sim_endtime_; t += step_size_, curr_step_++) {
         if (curr_step_ % out_steps_ == 0) {
             UpdateActiveBoxDomain(box_halfsize_x, box_halfsize_y);
@@ -421,7 +428,7 @@ void WheelSimulator::RunSimulationLoop() {
             std::cout << "Force on wheel: " << forces.x << ", " << forces.y << ", " << forces.z << std::endl;
             std::cout << "Drawbar pull coeff: " << (forces.x / total_pressure_) << std::endl;
 
-            WriteFrameData(t, forces);
+            WriteFrameData(t, curr_slip, forces);
 
             // Termination condition
             // if (wheel_tracker_->Pos().x > (world_size_x / 2.0f - wheel_.r_outer * 1.2f)) {
@@ -432,6 +439,8 @@ void WheelSimulator::RunSimulationLoop() {
         }
 
         DEMSim_.DoDynamics(step_size_);
+        DEMSim_.SetFamilyPrescribedLinVel(Family::ROTATING_AND_TRANSLATING, Utils::toStringWithPrecision(v_ref * (1.0 - curr_slip)), "0", "none", false);
+        curr_slip += change_in_slip;
     }
 
     // End simulation timer
