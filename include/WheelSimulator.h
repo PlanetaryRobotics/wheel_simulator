@@ -23,7 +23,8 @@ public:
      * @param terrain_filepath Path to the .csv file containing the pre-settled terrain data.
      * @param data_drivepath Path to the data drive
      */
-    WheelSimulator( double slip, 
+    WheelSimulator( double slip,
+                    double final_slip, 
                     double sim_endtime, 
                     const std::string& batch_dir, 
                     const std::filesystem::path& wheel_filepath,
@@ -44,6 +45,7 @@ public:
 private:
     // Simulation Parameters
     double slip_;
+    double final_slip_;
     double sim_endtime_;
     std::string batch_dir_;
 
@@ -73,6 +75,7 @@ private:
     double frame_time_;
     float total_pressure_;
     float added_pressure_;
+    float v_ref_;
 
     // Trackers
     std::shared_ptr<deme::DEMTracker> wheel_tracker_;
@@ -111,7 +114,7 @@ private:
     void UpdateActiveBoxDomain(float box_halfsize_x, float box_halfsize_y);
     void WriteWheelMesh();
     void WriteParticleCSV();
-    void WriteFrameData(double t, float3 forces);
+    void WriteFrameData(double t, double slip, float3 forces);
     void RunSimulationLoop();
 };
 

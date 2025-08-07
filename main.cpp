@@ -12,15 +12,16 @@ int main(int argc, char* argv[]) {
 
     // Import slip and batch directory from CLI arguments
     double slip = std::atof(argv[1]);
-    double sim_endtime = std::atof(argv[2]);
-    std::string batch_dir = argv[3];
+    double final_slip = std::atof(argv[2]);
+    double sim_endtime = std::atof(argv[3]);
+    std::string batch_dir = argv[4];
 
-    std::filesystem::path wheel_filepath = argv[4];
-    std::filesystem::path terrain_filepath = argv[5];
-    std::filesystem::path data_drivepath = argv[6];
+    std::filesystem::path wheel_filepath = argv[5];
+    std::filesystem::path terrain_filepath = argv[6];
+    std::filesystem::path data_drivepath = argv[7];
 
     try {
-        WheelSimulator simulator(slip, sim_endtime, batch_dir, wheel_filepath, terrain_filepath, data_drivepath);
+        WheelSimulator simulator(slip, final_slip, sim_endtime, batch_dir, wheel_filepath, terrain_filepath, data_drivepath);
         simulator.PrepareSimulation();
         simulator.RunSimulation();
     } catch (const std::exception& e) {

@@ -279,7 +279,7 @@ void WheelSimulator::ConfigureWheel() {
 void WheelSimulator::SetupPrescribedMotions() {
     // Families' prescribed motions
     float w_r = 0.2f;  // TODO: Change this so it isn't hardcoded
-    float v_ref = w_r * wheel_.r_effective;
+    v_ref_ = w_r * wheel_.r_effective;
 
     //TODO: Turn family numbers into enums with descriptive names
 
@@ -287,7 +287,7 @@ void WheelSimulator::SetupPrescribedMotions() {
     DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / wheel_.mass)); // TODO: What does this number mean?
 
     DEMSim_.SetFamilyPrescribedAngVel(Family::ROTATING_AND_TRANSLATING, "0", Utils::toStringWithPrecision(w_r), "0", false);
-    DEMSim_.SetFamilyPrescribedLinVel(Family::ROTATING_AND_TRANSLATING, Utils::toStringWithPrecision(v_ref * (1.0 - slip_)), "0", "none", false);
+    DEMSim_.SetFamilyPrescribedLinVel(Family::ROTATING_AND_TRANSLATING, Utils::toStringWithPrecision(v_ref_ * (1.0 - slip_)), "0", "none", false);
     DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING_AND_TRANSLATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / wheel_.mass)); // TODO: What does this number mean?
 }
 
@@ -363,7 +363,7 @@ void WheelSimulator::WriteFrameData(double t, double slip, float3 forces) {
     // Write a new row of summary data to output.csv.
     try {
         output_datafile_<< t << ","
-                        << curr_slip << ","
+                        << slip << ","
                         << forces.x << "," 
                         << forces.y << "," 
                         << forces.z << ","
@@ -439,7 +439,7 @@ void WheelSimulator::RunSimulationLoop() {
         }
 
         DEMSim_.DoDynamics(step_size_);
-        DEMSim_.SetFamilyPrescribedLinVel(Family::ROTATING_AND_TRANSLATING, Utils::toStringWithPrecision(v_ref * (1.0 - curr_slip)), "0", "none", false);
+        DEMSim_.SetFamilyPrescribedLinVel(Family::ROTATING_AND_TRANSLATING, Utils::toStringWithPrecision(v_ref_ * (1.0 - curr_slip)), "0", "none", false);
         curr_slip += change_in_slip;
     }
 
