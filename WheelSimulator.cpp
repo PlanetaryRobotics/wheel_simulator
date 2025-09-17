@@ -427,7 +427,7 @@ void WheelSimulator::RunSimulationLoop() {
             WriteFrameData(t, forces);
 
             // Termination condition
-            // if (wheel_tracker_->Pos().x > (world_size_x / 2.0f - wheel_radius * 1.2f)) {
+            // if (wheel_tracker_->Pos().x > (world_size_x / 2.0f - wheel_.r_outer * 1.2f)) {
             //     std::cout << "This is far enough, stopping the simulation..." << std::endl;
             //     DEMSim_.DoDynamicsThenSync(0.0f);
             //     break;
