@@ -22,13 +22,15 @@ public:
      * @param wheel_filepath Path to the .obj file for the wheel
      * @param terrain_filepath Path to the .csv file containing the pre-settled terrain data.
      * @param data_drivepath Path to the data drive
+     * @param data_drivepath Path to the .json file configuring the wheel parameters
      */
     WheelSimulator( double slip, 
                     double sim_endtime, 
                     const std::string& batch_dir, 
                     const std::filesystem::path& wheel_filepath,
                     const std::filesystem::path& terrain_filepath,
-                    const std::filesystem::path& data_drivepath
+                    const std::filesystem::path& data_drivepath,
+                    const std::filesystem::path& wheel_param_filepath
                 );
 
     /**

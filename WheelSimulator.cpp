@@ -15,12 +15,15 @@
 #include <stdexcept>
 #include <unordered_map>
 
+#include <nlohmann/json.hpp>
+
 using namespace deme;
 
 WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::string& batch_dir,
                     const std::filesystem::path& wheel_filepath,
                     const std::filesystem::path& terrain_filepath,
-                    const std::filesystem::path& data_drivepath)
+                    const std::filesystem::path& data_drivepath,
+                    const std::filesystem::path& wheel_param_filepath)
     : slip_(slip),
       sim_endtime_(sim_endtime),
       terrain_filepath_(terrain_filepath),

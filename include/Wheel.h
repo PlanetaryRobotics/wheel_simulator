@@ -5,6 +5,33 @@
 #include <unordered_map>
 #include <string>
 
+struct WheelParams {
+    float outer_radius_m     = 0.0;
+    float effective_radius_m = 0.0;
+    float width_m            = 0.0;
+    float mass_kg            = 0.0;
+    float total_mass_kg          = 0.0;
+    float angular_velocity_rad_s = 0.0;
+}
+
+WheelParams load_params (const std::filesystem::path& wheel_json) {
+    //open json
+    std::ifstream in(wheel_json);
+    if (!in) {
+        throw std::runtime_error("Cannot open wheel param file: " + wheel_json.string());
+    }
+    nlohmann::json j;
+    in >> j;
+
+    WheelParams wheelparams;
+    auto get_param = [&](const char* k) -> float {
+        if (!j.contains(k) || !j[k].is_number()) {
+            throw std::runtime_error(std::string("Missing/invalid '") + k + "' in " + wheel_json.string());
+        }
+        return j[k].get<float>();
+    };
+}
+
 struct Wheel {
     float r_effective;
     float r_outer;

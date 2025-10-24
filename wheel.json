@@ -1,0 +1,8 @@
+{
+  "outer_radius_m": 0.091,
+  "effective_radius_m": 0.085,
+  "width_m": 0.06,
+  "mass_kg": 0.238,
+  "total_mass_kg": 4.5,
+  "angular_velocity_rad_s": 0.2
+}
