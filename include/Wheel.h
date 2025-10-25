@@ -12,7 +12,7 @@ struct WheelParams {
     float mass_kg            = 0.0;
     float total_mass_kg          = 0.0;
     float angular_velocity_rad_s = 0.0;
-}
+};
 
 WheelParams load_params (const std::filesystem::path& wheel_json) {
     //open json
@@ -30,6 +30,14 @@ WheelParams load_params (const std::filesystem::path& wheel_json) {
         }
         return j[k].get<float>();
     };
+    wheelparams.outer_radius_m = get_param("outer_radius_m");
+    wheelparams.effective_radius_m = get_param("effective_radius_m");
+    wheelparams.width_m = get_param("width_m");
+    wheelparams.mass_kg = get_param("mass_kg");
+    wheelparams.total_mass_kg = get_param("total_mass_kg");
+    wheelparams.angular_velocity_rad_s = get_param("angular_velocity_rad_s");
+
+    return wheelparams;
 }
 
 struct Wheel {
@@ -46,8 +54,9 @@ struct Wheel {
     std::unordered_map<std::string, float> material_properties;
 
     // Constructor to initialize the wheel properties
-    Wheel(float r_o, float r_e, float w, float m, const std::filesystem::path& mesh_path)
-        :  r_outer(r_o), r_effective(r_e), width(w), mass(m), mesh_file_path(mesh_path) {
+    Wheel(const WheelParams& wp, const std::filesystem::path& mesh_path)
+        :  r_outer(wp.outer_radius_m), r_effective(wp.effective_radius_m), 
+           width(wp.width_m), mass(wp.mass_kg), mesh_file_path(mesh_path) {
         // Calc moments of inertia based on wheel dimensions
         IYY = mass * r_outer * r_outer / 2.0f;
         IXX = (mass / 12.0f) * (3.0f * r_outer * r_outer + width * width);
@@ -63,5 +72,11 @@ struct Wheel {
         };
     }
 };
+
+static Wheel makeWheel(const std::filesystem::path& wheel_json,
+                       const std::filesystem::path& mesh_path) {
+    const WheelParams wp = load_params(wheel_json);
+    return Wheel(wp, mesh_path);
+}
 
 #endif // WHEEL_H
