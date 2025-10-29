@@ -309,7 +309,9 @@ void WheelSimulator::WriteParticleCSV() {
 
 void WheelSimulator::WriteWheelMesh() {
     char meshname[200];
-    sprintf(meshname, "%s/DEMdemo_mesh_%04d.vtk", rover_dir_.c_str(), currframe_);
+    // sprintf(meshname, "%s/DEMdemo_mesh_%04d.vtk", rover_dir_.c_str(), currframe_);
+    std::snprintf(meshname, sizeof(meshname), "%s/wheel_%05d.obj",
+              output_dir.c_str(), step);
     //DEMSim_.WriteMeshFile(meshname);
     DEMSim_.WriteMeshFile(std::filesystem::path(meshname));
 }
