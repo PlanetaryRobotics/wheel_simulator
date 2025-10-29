@@ -315,7 +315,7 @@ void WheelSimulator::WriteWheelMesh() {
     sprintf(meshname, "%s/DEMdemo_mesh_%04d.vtk", rover_dir_.c_str(), currframe_);
     // std::snprintf(meshname, sizeof(meshname), "%s/DEMdemo_mesh_%04d.vtk",
     //           rover_dir_.c_str(), currframe_);
-    DEMSim_.WriteMeshFile(meshname);
+    DEMSim_.WriteMeshFile(std::string(meshname));
     // DEMSim_.WriteMeshFile(std::filesystem::path(meshname));
 }
 
