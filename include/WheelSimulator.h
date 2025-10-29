@@ -22,7 +22,7 @@ public:
      * @param wheel_filepath Path to the .obj file for the wheel
      * @param terrain_filepath Path to the .csv file containing the pre-settled terrain data.
      * @param data_drivepath Path to the data drive
-     * @param data_drivepath Path to the .json file configuring the wheel parameters
+     * @param wheel_param_filepath Path to the .json file configuring the wheel parameters
      */
     WheelSimulator( double slip, 
                     double sim_endtime, 

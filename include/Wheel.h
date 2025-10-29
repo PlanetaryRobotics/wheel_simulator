@@ -16,7 +16,7 @@ struct WheelParams {
     float angular_velocity_rad_s = 0.0;
 };
 
-WheelParams load_wheelparams (const std::filesystem::path& wheel_json) {
+inline WheelParams load_wheelparams (const std::filesystem::path& wheel_json) {
     //open json
     std::ifstream in(wheel_json);
     if (!in) {
@@ -75,7 +75,7 @@ struct Wheel {
     }
 };
 
-Wheel makeWheel(const std::filesystem::path& wheel_json,
+inline Wheel makeWheel(const std::filesystem::path& wheel_json,
                        const std::filesystem::path& mesh_path) {
     const WheelParams wp = load_wheelparams(wheel_json);
     return Wheel(wp, mesh_path);
