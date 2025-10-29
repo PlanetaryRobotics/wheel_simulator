@@ -84,6 +84,7 @@ foreach(PROGRAM ${TESTS})
 
     # Add DEME library to each executable
     target_link_libraries(${PROGRAM} PRIVATE DEME::simulator_multi_gpu nlohmann_json::nlohmann_json)
+    target_include_directories(${PROGRAM} PRIVATE $ENV{HOME}/third_party)
 
     # Define DEME data directory (if needed)
     target_compile_definitions(${PROGRAM} PUBLIC "DEME_DATA_DIR=\"${DEME_DATA_DIRS}\"")

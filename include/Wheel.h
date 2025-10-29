@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <unordered_map>
 #include <string>
+#include <fstream>
 #include <nlohmann/json.hpp>
 
 struct WheelParams {
