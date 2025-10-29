@@ -75,7 +75,7 @@ struct Wheel {
     }
 };
 
-static Wheel makeWheel(const std::filesystem::path& wheel_json,
+Wheel makeWheel(const std::filesystem::path& wheel_json,
                        const std::filesystem::path& mesh_path) {
     const WheelParams wp = load_wheelparams(wheel_json);
     return Wheel(wp, mesh_path);
