@@ -48,6 +48,9 @@ WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::strin
       
 {
     // Constructor body. Can remain empty or initialize additional members if necessary
+    //debug print
+    std::printf("wheel outer radius (%f)\nwheel effective radius (%f)\nwheel width (%f)\nwheel mass (%f)\n", 
+            wheel_.r_outer, wheel_.r_effective, wheel_.width, wheel_.mass);
 }
 
 void WheelSimulator::PrepareSimulation() {
