@@ -308,7 +308,7 @@ void WheelSimulator::WriteParticleCSV() {
 }
 
 void WheelSimulator::WriteWheelMesh() {
-    char meshname[200];
+    char meshname[300];
     sprintf(meshname, "%s/DEMdemo_mesh_%04d.vtk", rover_dir_.c_str(), currframe_);
     DEMSim_.WriteMeshFile(meshname);
 }
