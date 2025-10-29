@@ -15,8 +15,6 @@
 #include <stdexcept>
 #include <unordered_map>
 
-#include <nlohmann/json.hpp>
-
 using namespace deme;
 
 WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::string& batch_dir,

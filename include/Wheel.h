@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <unordered_map>
 #include <string>
+#include <nlohmann/json.hpp>
 
 struct WheelParams {
     float outer_radius_m     = 0.0;
