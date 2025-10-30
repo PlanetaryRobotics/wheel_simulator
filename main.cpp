@@ -5,7 +5,11 @@
 
 int main(int argc, char* argv[]) {
     // Process input data
-    if (argc != 7) {
+    if (argc != 8) {
+        std::cerr << "argc = " << argc << "\n";
+        for (int i = 0; i < argc; ++i) {
+            std::cerr << "argv[" << i << "] = \"" << argv[i] << "\"\n";
+        }
         std::cerr << "Usage: ./WheelSimulator <slip> <sim_endtime> <batch_dir_name> <wheel_path> <terrain_path> <data_path> <wheel_param_path>" << std::endl;
         return EXIT_FAILURE;
     }
