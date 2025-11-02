@@ -47,6 +47,8 @@ struct Wheel {
     float r_outer;
     float width;
     float mass;
+    float m_total;
+    float v_angular;
     float IXX;  // Moment of inertia about X-axis
     float IYY;  // Moment of inertia about Y-axis
     float IZZ;  // Moment of inertia about Z-axis
@@ -58,7 +60,8 @@ struct Wheel {
     // Constructor to initialize the wheel properties
     Wheel(const WheelParams& wp, const std::filesystem::path& mesh_path)
         :  r_outer(wp.outer_radius_m), r_effective(wp.effective_radius_m), 
-           width(wp.width_m), mass(wp.mass_kg), mesh_file_path(mesh_path) {
+           width(wp.width_m), mass(wp.mass_kg), m_total(wp.total_mass_kg), 
+           v_angular(wp.angular_velocity_rad_s), mesh_file_path(mesh_path) {
         // Calc moments of inertia based on wheel dimensions
         IYY = mass * r_outer * r_outer / 2.0f;
         IXX = (mass / 12.0f) * (3.0f * r_outer * r_outer + width * width);

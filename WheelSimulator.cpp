@@ -49,8 +49,9 @@ WheelSimulator::WheelSimulator(double slip, double sim_endtime, const std::strin
 {
     // Constructor body. Can remain empty or initialize additional members if necessary
     //debug print
-    std::printf("wheel outer radius (%f)\nwheel effective radius (%f)\nwheel width (%f)\nwheel mass (%f)\n", 
-            wheel_.r_outer, wheel_.r_effective, wheel_.width, wheel_.mass);
+    std::printf("wheel outer radius (%f)\nwheel effective radius (%f)\nwheel width (%f)\nwheel mass (%f)\nwheel total mass (%f)\nwheel angular velocity (%f)\n", 
+            wheel_.r_outer, wheel_.r_effective, wheel_.width, wheel_.mass,
+            wheel_.m_total, wheel_.v_angular);
 }
 
 void WheelSimulator::PrepareSimulation() {
@@ -266,7 +267,7 @@ void WheelSimulator::PrepareParticles() {
 void WheelSimulator::ConfigureWheel() {
     // Define simulation parameters
     // TODO: Change this so it isn't hardcoded
-    float total_mass = 4.5f; // kg
+    float total_mass = wheel_.m_total; // kg
     total_pressure_ = total_mass * Constants::GRAVITY_MAGNITUDE; // N
     added_pressure_ = (total_mass - wheel_.mass) * Constants::GRAVITY_MAGNITUDE; // N
 
@@ -283,7 +284,7 @@ void WheelSimulator::ConfigureWheel() {
 
 void WheelSimulator::SetupPrescribedMotions() {
     // Families' prescribed motions
-    float w_r = 0.2f;  // TODO: Change this so it isn't hardcoded
+    float w_r = wheel_.v_angular;  // TODO: Change this so it isn't hardcoded
     float v_ref = w_r * wheel_.r_effective;
 
     //TODO: Turn family numbers into enums with descriptive names
