@@ -1,0 +1,9 @@
+{
+  "world_size_x": 1,
+  "world_size_y": 0.3,
+  "world_size_z": 2,
+  "world_bottom": -0.5,
+  "terrain_density": 2.6e3,
+  "volume1": 4.2520508,
+  "volume2": 2.1670011
+}
