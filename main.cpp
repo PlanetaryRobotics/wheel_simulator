@@ -11,11 +11,11 @@ int main(int argc, char* argv[]) {
     // Process input data
     if (argc != 4) {
         // std::cerr << "Usage: ./WheelSimulator <slip> <sim_endtime> <batch_dir_name> <wheel_path> <terrain_path> <data_path>" << std::endl;
-        std::cerr << "Usage: ./WheelSimulator <job_json_path> <batch_name> <slip>" << std::endl;
+        std::cerr << "Usage: ./WheelSimulator <input_json_folder_path> <batch_name> <slip>" << std::endl;
         return EXIT_FAILURE;
     }
 
-    std::ifstream file(argv[1]);
+    std::ifstream file((argv[1] + "/job_parameters.json"));
     if (!file) {
         std::cerr << "Could not open " << argv[1] << "\n";
         return 1;
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
     std::filesystem::path terrain_filepath = terrain_directory / "GRC_3e5_Reduced_Footprint.csv";
 
     
-    std::filesystem::path wheel_json_path = wheel_directory / "wheel_parameters.json";
+    std::filesystem::path wheel_json_path = argv[1] / "/wheel_parameters.json";
     std::ifstream file2(wheel_json_path);
     if (!file2) {
         std::cerr << "Could not open " << wheel_json_path << "\n";
@@ -68,7 +68,7 @@ int main(int argc, char* argv[]) {
     float mass = wheel_json.value("mass", 0.238);
     float total_mass = wheel_json.value("total_mass", 4.5);
 
-    std::filesystem::path terrain_json_path = terrain_directory / "terrain_parameters.json";
+    std::filesystem::path terrain_json_path = argv[1] / "terrain_parameters.json";
     std::ifstream file3(terrain_json_path);
     if (!file3) {
         std::cerr << "Could not open " << terrain_json_path << "\n";
