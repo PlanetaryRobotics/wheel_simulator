@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
     std::filesystem::path terrain_filepath = terrain_directory / "GRC_3e5_Reduced_Footprint.csv";
 
     
-    std::filesystem::path wheel_json_path = input_files / "/wheel_parameters.json";
+    std::filesystem::path wheel_json_path = input_files / "wheel_parameters.json";
     std::ifstream file2(wheel_json_path);
     if (!file2) {
         std::cerr << "Could not open " << wheel_json_path << "\n";
