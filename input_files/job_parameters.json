@@ -1,7 +1,7 @@
 {
-    "terrain_filepath": "/jet/home/matthies/moonranger_mobility/terrain/GRC_3e5_Reduced_Footprint",
-    "wheel_folder_path": "/jet/home/matthies/moonranger_mobility/meshes/wheel_5/",
-    "data_drivepath": "/ocean/projects/mch240013p/matthies/",
+    "terrain_filepath": "/jet/home/slai2/moonranger_mobility/terrain/",
+    "wheel_folder_path": "/jet/home/slai2/moonranger_mobility/meshes/",
+    "data_drivepath": "/ocean/projects/mch250020p/slai2/",
     "sim_endtime": 5,
     "output_dir": ""
 }
