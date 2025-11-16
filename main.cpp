@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     std::filesystem::path wheel_directory = job_json["wheel_folder_path"];
-    std::filesystem::path wheel_filepath = wheel_directory / "wheel.obj";
+    std::filesystem::path wheel_filepath = wheel_directory / "moonranger_wheel.obj";
 
     if(!job_json.contains("terrain_filepath")){
         std::cerr << "Error: 'terrain_filepath' is missing from the job_json\n";
