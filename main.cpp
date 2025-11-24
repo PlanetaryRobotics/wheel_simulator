@@ -10,7 +10,6 @@ using json = nlohmann::json;
 int main(int argc, char* argv[]) {
     // Process input data
     if (argc != 4) {
-        // std::cerr << "Usage: ./WheelSimulator <slip> <sim_endtime> <batch_dir_name> <wheel_path> <terrain_path> <data_path>" << std::endl;
         std::cerr << "Usage: ./WheelSimulator <input_json_folder_path> <batch_name> <slip>" << std::endl;
         return EXIT_FAILURE;
     }
