@@ -14,8 +14,8 @@ make -j 64
 6. Configure parameters: inside input files, there are 3 JSON files. In `job_parameters.json`, setup the input and output directories, as well as the simulation endtime. To use the example file, remember to replace the user name. In `terrain_parameters.json` and `wheel_parameters.json`, configure the corresponding parameters as needed
 7. Setup dependencies for wheel optimizer script: 
 ```bash
-chmod +x setup_wheel_env.sh
-./setup_wheel_env.sh
+chmod +x setup_env.sh
+./setup_env.sh
 ```
 8. To run optimizer that replace the original wheel.obj file, change desired parameters in `wheel_parameters.json` and run:
 ```bash

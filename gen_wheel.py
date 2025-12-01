@@ -399,7 +399,10 @@ def main():
     print(f"[i] Saved mesh (OBJ): {mesh_path}")
     print(f"[i] Saved manifest: {man_path}")
     print(f"[i] Mesh summary: V={len(mesh.vertices)} F={len(mesh.faces)}")
-    print(f"[i] Watertight? {mesh.is_watertight} | Normals consistent? {trimesh.repair.is_winding_consistent(mesh)}")
+    # print(f"[i] Watertight? {mesh.is_watertight} | Normals consistent? {trimesh.repair.is_winding_consistent(mesh)}") #TODO: verify this
+    normal_ok = getattr(mesh, "is_winding_consistent", None)
+    print(f"[i] Watertight? {mesh.is_watertight} | Winding consistent? {normal_ok}")
+
 
 if __name__ == "__main__":
     main()
