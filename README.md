@@ -12,6 +12,17 @@ module load gcc/10.2.0
 make -j 64
 ```
 6. Configure parameters: inside input files, there are 3 JSON files. In `job_parameters.json`, setup the input and output directories, as well as the simulation endtime. To use the example file, remember to replace the user name. In `terrain_parameters.json` and `wheel_parameters.json`, configure the corresponding parameters as needed
+7. Setup dependencies for wheel optimizer script: 
+```bash
+chmod +x setup_wheel_env.sh
+./setup_wheel_env.sh
+```
+8. To run optimizer that replace the original wheel.obj file, change desired parameters in `wheel_parameters.json` and run:
+```bash
+source .venv/bin/activate
+python gen_wheel.py
+```
+Please note that the newly generated obj file goes into the path stored in `job_parameters.json`
 
 ## Running
 Run the simulation using the following command:

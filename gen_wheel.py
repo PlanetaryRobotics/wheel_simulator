@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """
 gen_wheel.py  —  Parametric wheel generator for Chrono/DEM runs
-- Reads a JSON config (radius, width, grouser + inner-geometry params, material rho).
-- Builds a surface mesh (OBJ/STL/PLY) using trimesh.
+- Reads:
+    * job_parameters.json  (to get output directory from "terrain_filepath")
+    * wheel_parameters.json (wheel geometry, material, etc.)
+- Builds a surface mesh (OBJ) using trimesh.
 - Outer geometry: ring shell + plate grousers.
 - Inner geometry: hub ring + radial spokes (trimesh boxes).
 - Runs mesh QA/repair.
 - Emits a wheel manifest (JSON) with derived fields (effective radius, est. mass).
 
-Minimal usage:
-  python gen_wheel.py --config wheel.json --outdir meshes/ --tag MR
+Minimal usage (from repo root):
+  python gen_wheel.py
+
+Expected files:
+  input_files/job_parameters.json    -> must contain "terrain_filepath"
+  input_files/wheel_parameters.json  -> wheel geometry + material parameters
 
 Dependencies (suggested):
   pip install trimesh shapely
@@ -75,9 +81,6 @@ def place_grouser_plate(
     plate_local.apply_transform(Rz)
 
     # Translate so the inner face sits on the shell at radius R_out.
-    # With the above setup, the inner face is at local x = -g_height/2,
-    # but after T0 it moved to x in [0, g_height].
-    # So translating by R_out puts that inner face at radius R_out.
     T1 = translation_matrix([R_out * math.cos(theta), R_out * math.sin(theta), 0.0])
     plate_local.apply_transform(T1)
 
@@ -319,31 +322,63 @@ def load_config(path: Path) -> dict:
     text = path.read_text()
     return json.loads(text)
 
-def save_mesh(mesh: trimesh.Trimesh, path: Path, filetype: str):
-    filetype = filetype.lower()
-    mesh.export(path, file_type=filetype)
+def save_mesh(mesh: trimesh.Trimesh, path: Path):
+    """Always export OBJ."""
+    mesh.export(path, file_type="obj")
 
 def main():
-    ap = argparse.ArgumentParser(description="Generate parametric wheel mesh + manifest for Chrono/DEM.")
-    ap.add_argument("--config", required=True, help="wheel.json config file")
-    ap.add_argument("--outdir", required=True, help="output directory (e.g., meshes/)")
-    ap.add_argument("--format", default="obj", choices=["obj", "stl", "ply"], help="mesh format")
-    ap.add_argument("--tag", default="", help="extra tag for filenames/manifest")
+    ap = argparse.ArgumentParser(
+        description=(
+            "Generate parametric wheel mesh + manifest for Chrono/DEM.\n"
+            "Reads job_parameters.json for terrain_filepath (output dir) and "
+            "wheel_parameters.json for wheel geometry."
+        )
+    )
+    ap.add_argument(
+        "--job-config",
+        default="input_files/job_parameters.json",
+        help="path to job_parameters.json (must contain 'terrain_filepath')",
+    )
+    ap.add_argument(
+        "--wheel-config",
+        default="input_files/wheel_parameters.json",
+        help="path to wheel_parameters.json (wheel geometry/material parameters)",
+    )
+    ap.add_argument(
+        "--tag",
+        default="",
+        help="extra tag for filenames/manifest (overrides any tag in wheel_parameters.json)",
+    )
     ap.add_argument("--union", action="store_true", help="try boolean union")
     ap.add_argument("--aggressive-repair", action="store_true", help="extra repair passes")
     args = ap.parse_args()
 
-    outdir = Path(args.outdir).expanduser().resolve()
+    # Load configs
+    job_cfg_path = Path(args.job_config).expanduser().resolve()
+    wheel_cfg_path = Path(args.wheel_config).expanduser().resolve()
+
+    job_cfg = load_config(job_cfg_path)
+    cfg = load_config(wheel_cfg_path)
+
+    # Derive output directory from job_parameters.json
+    terrain_path = job_cfg.get("terrain_filepath")
+    if not terrain_path:
+        print("[e] 'terrain_filepath' not found in job_parameters.json", file=sys.stderr)
+        sys.exit(1)
+
+    outdir = Path(terrain_path).expanduser().resolve()
     outdir.mkdir(parents=True, exist_ok=True)
 
-    cfg = load_config(Path(args.config).expanduser().resolve())
+    # Apply CLI overrides
     if args.tag:
         cfg["tag"] = args.tag
     cfg["boolean_union"] = bool(args.union)
 
+    # Build and repair mesh
     mesh = build_wheel_mesh(cfg)
     mesh = qa_and_repair(mesh, aggressive=args.aggressive_repair)
 
+    # Naming based on wheel geometry
     Rmm  = int(round(1000.0 * float(cfg["outer_radius"])))
     Wmm  = int(round(1000.0 * float(cfg["width"])))
     G    = int(cfg["grouser_number"])
@@ -351,14 +386,17 @@ def main():
     tag  = cfg.get("tag", "")
     base = f"wheel_R{Rmm}_W{Wmm}_G{G}_h{GHmm}{('_' + tag) if tag else ''}"
 
-    mesh_path = outdir / f"{base}.{args.format}"
-    save_mesh(mesh, mesh_path, args.format)
+    # Always OBJ
+    mesh_path = outdir / f"{base}.obj"
+    save_mesh(mesh, mesh_path)
 
+    # Manifest JSON next to OBJ
     man = manifest(cfg, mesh_path)
     man_path = outdir / f"{base}.json"
     man_path.write_text(json.dumps(man, indent=2))
 
-    print(f"[i] Saved mesh: {mesh_path}")
+    print(f"[i] Output directory: {outdir}")
+    print(f"[i] Saved mesh (OBJ): {mesh_path}")
     print(f"[i] Saved manifest: {man_path}")
     print(f"[i] Mesh summary: V={len(mesh.vertices)} F={len(mesh.faces)}")
     print(f"[i] Watertight? {mesh.is_watertight} | Normals consistent? {trimesh.repair.is_winding_consistent(mesh)}")
