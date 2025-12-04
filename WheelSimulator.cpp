@@ -19,6 +19,90 @@ using json = nlohmann::json;
 
 using namespace deme;
 
+// #define DEBUG
+#ifdef DEBUG
+#include <ostream>
+
+// Helper to print maps
+static std::ostream& print_material_properties(std::ostream& os,
+                                               const std::unordered_map<std::string, float>& m) {
+    os << "{";
+    bool first = true;
+    for (const auto& [k, v] : m) {
+        if (!first) os << ", ";
+        first = false;
+        os << k << ": " << v;
+    }
+    os << "}";
+    return os;
+}
+
+// If float3 has x, y, z members; adjust if your type is different
+static std::ostream& print_float3(std::ostream& os, const float3& v) {
+    return os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+}
+
+std::ostream& operator<<(std::ostream& os, const Wheel& w) {
+    os << "Wheel{"
+       << "r_effective=" << w.r_effective
+       << ", r_outer=" << w.r_outer
+       << ", width=" << w.width
+       << ", mass=" << w.mass
+       << ", total_mass=" << w.total_mass
+       << ", IXX=" << w.IXX
+       << ", IYY=" << w.IYY
+       << ", IZZ=" << w.IZZ
+       << ", mesh_file_path=" << w.mesh_file_path
+       << ", material_properties=";
+    print_material_properties(os, w.material_properties);
+    os << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const Terrain& t) {
+    os << "Terrain{"
+       << "terrain_filepath=" << t.terrain_filepath
+       << ", world_size=(" << t.world_size_x << ", "
+                           << t.world_size_y << ", "
+                           << t.world_size_z << ")"
+       << ", world_bottom=" << t.world_bottom
+       << ", terrain_density=" << t.terrain_density
+       << ", volume1=" << t.volume1
+       << ", volume2=" << t.volume2
+       << ", scales=[";
+    for (std::size_t i = 0; i < t.scales.size(); ++i) {
+        if (i > 0) os << ", ";
+        os << t.scales[i];
+    }
+    os << "]"
+       << ", MOI1=";
+    print_float3(os, t.MOI1);
+    os << ", MOI2=";
+    print_float3(os, t.MOI2);
+    os << ", material_properties=";
+    print_material_properties(os, t.material_properties);
+    os << "}";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const SimParams& s) {
+    os << "SimParams{"
+       << "slip=" << s.slip
+       << ", sim_endtime=" << s.sim_endtime
+       << ", batch_dir=\"" << s.batch_dir << "\""
+       << ", data_drivepath=" << s.data_drivepath
+       << ", rotational_velocity=" << s.rotational_velocity
+       << ", step_size=" << s.step_size
+       << ", angle_deg=" << s.angle_deg
+       << ", offset=(" << s.offset_x << ", "
+                       << s.offset_y << ", "
+                       << s.offset_z << ")"
+       << ", settling_time=" << s.settling_time
+       << "}";
+    return os;
+}
+#endif
+
 WheelSimulator::WheelSimulator(Wheel wheel, Terrain terrain, 
                                 SimParams simparams, const json param)
     : param_(param),
@@ -30,13 +114,7 @@ WheelSimulator::WheelSimulator(Wheel wheel, Terrain terrain,
       frame_time_(1.0 / Constants::FPS),
       total_pressure_(0.0f),
       added_pressure_(0.0f),
-      mat_type_terrain_(DEMSim_.LoadMaterial({
-                        {"E", 1e9},
-                        {"nu", 0.3},
-                        {"CoR", 0.3},
-                        {"mu", 0.5},
-                        {"Crr", 0.00}
-                    })),
+      mat_type_terrain_(DEMSim_.LoadMaterial(terrain.material_properties)),
       wheel_(wheel), // initializes wheel
       terrain_(terrain),
       simparams_(simparams)
@@ -44,6 +122,11 @@ WheelSimulator::WheelSimulator(Wheel wheel, Terrain terrain,
       
 {
     // Constructor body. Can remain empty or initialize additional members if necessary
+#ifdef DEBUG    
+    std::cout << wheel_ << '\n';
+    std::cout << terrain_ << '\n';
+    std::cout << simparams_ << '\n';
+#endif
 }
 
 void WheelSimulator::PrepareSimulation() {
@@ -168,23 +251,12 @@ void WheelSimulator::PrepareParticles() {
     DEMSim_.AddBCPlane(make_float3(static_cast<float>(world_size_x) / 2.0f, 0.0f, 0.0f), make_float3(-1.0f, 0.0f, 0.0f), mat_type_terrain_);
 
     // Define terrain particle templates
-    float terrain_density = terrain_.terrain_density;
-    float volume1 = terrain_.volume1;
-    float mass1 = terrain_density * volume1;
-    float3 MOI1 = terrain_.MOI1 * terrain_density;
-    float volume2 = terrain_.volume2;
-    float mass2 = terrain_density * volume2;
-    float3 MOI2 = terrain_.MOI2 * terrain_density;
-
-
-    // Scale factors
-    std::vector<double> scales = {0.0014, 0.00075833, 0.00044, 0.0003, 0.0002, 0.00018333, 0.00017};
-    for (auto& scale : scales) {
-        scale *= simparams_.scale_factor;
-    }
+    float mass1 = terrain_.terrain_density * terrain_.volume1;
+    float3 MOI1 = terrain_.MOI1 * terrain_.terrain_density;
+    float mass2 = terrain_.terrain_density * terrain_.volume2;
+    float3 MOI2 = terrain_.MOI2 * terrain_.terrain_density;
 
     std::cout << "Loading clump templates..." << std::endl;
-
 
     // Load clump templates
     std::shared_ptr<DEMClumpTemplate> my_template2 = DEMSim_.LoadClumpType(mass2, MOI2, GetDEMEDataFile("clumps/triangular_flat_6comp.csv"), mat_type_terrain_);
@@ -200,9 +272,9 @@ void WheelSimulator::PrepareParticles() {
     };
 
     // Scale and name templates
-    for (size_t i = 0; i < scales.size(); ++i) {
+    for (size_t i = 0; i < terrain_.scales.size(); ++i) {
         auto& tmpl = ground_particle_templates.at(i);
-        tmpl->Scale(scales.at(i));
+        tmpl->Scale(terrain_.scales.at(i));
 
         char t_name[20];
         std::sprintf(t_name, "%04zu", i);
@@ -226,7 +298,7 @@ void WheelSimulator::PrepareParticles() {
     std::vector<std::shared_ptr<DEMClumpTemplate>> in_types;
     unsigned int t_num = 0;
 
-    for (const auto& scale : scales) {
+    for (const auto& scale : terrain_.scales) {
         char t_name[20];
         std::sprintf(t_name, "%04u", t_num);
 
@@ -258,10 +330,8 @@ void WheelSimulator::PrepareParticles() {
 // Load in the wheel
 void WheelSimulator::ConfigureWheel() {
     // Define simulation parameters
-    // TODO: Change this so it isn't hardcoded
-    float total_mass = wheel_.total_mass; // kg
-    total_pressure_ = total_mass * Constants::GRAVITY_MAGNITUDE; // N
-    added_pressure_ = (total_mass - wheel_.mass) * Constants::GRAVITY_MAGNITUDE; // N
+    total_pressure_ = wheel_.total_mass * Constants::GRAVITY_MAGNITUDE; // N
+    added_pressure_ = (wheel_.total_mass - wheel_.mass) * Constants::GRAVITY_MAGNITUDE; // N
 
     std::cout << "Total Pressure: " << total_pressure_ << "N" << std::endl;
     std::cout << "Added Pressure: " << added_pressure_ << "N" << std::endl;
@@ -276,15 +346,14 @@ void WheelSimulator::ConfigureWheel() {
 
 void WheelSimulator::SetupPrescribedMotions() {
     // Families' prescribed motions
-    float w_r = simparams_.rotational_velocity; 
-    float v_ref = w_r * wheel_.r_effective;
+    float v_ref = simparams_.rotational_velocity * wheel_.r_effective;
 
     //TODO: Turn family numbers into enums with descriptive names
 
-    DEMSim_.SetFamilyPrescribedAngVel(Family::ROTATING, "0", Utils::toStringWithPrecision(w_r), "0", false);
+    DEMSim_.SetFamilyPrescribedAngVel(Family::ROTATING, "0", Utils::toStringWithPrecision(simparams_.rotational_velocity), "0", false);
     DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / wheel_.mass)); // TODO: What does this number mean?
 
-    DEMSim_.SetFamilyPrescribedAngVel(Family::ROTATING_AND_TRANSLATING, "0", Utils::toStringWithPrecision(w_r), "0", false);
+    DEMSim_.SetFamilyPrescribedAngVel(Family::ROTATING_AND_TRANSLATING, "0", Utils::toStringWithPrecision(simparams_.rotational_velocity), "0", false);
     DEMSim_.SetFamilyPrescribedLinVel(Family::ROTATING_AND_TRANSLATING, Utils::toStringWithPrecision(v_ref * (1.0 - simparams_.slip)), "0", "none", false);
     DEMSim_.AddFamilyPrescribedAcc(Family::ROTATING_AND_TRANSLATING, "none", "none", Utils::toStringWithPrecision(-added_pressure_ / wheel_.mass)); // TODO: What does this number mean?
 }
@@ -315,7 +384,7 @@ void WheelSimulator::PerformInitialSink() {
     float max_z = max_z_finder_->GetValue();
     std::cout << "Setting wheel position" << std::endl;
     if (wheel_tracker_) {
-        wheel_tracker_->SetPos(make_float3(-0.25, 0, max_z + 0.01 + wheel_.r_outer));
+        wheel_tracker_->SetPos(make_float3(simparams_.offset_x, simparams_.offset_y, max_z + simparams_.offset_z + wheel_.r_outer));
         //offset wheel orientation a bit for steering test
         const float rad = simparams_.angle_deg * (float)M_PI / 180.0f;
         const float4 initQ = make_float4(0.0f, 0.0f, sinf(0.5f * rad), cosf(0.5f * rad));
@@ -324,7 +393,7 @@ void WheelSimulator::PerformInitialSink() {
         std::cerr << "Error: wheel_tracker_ is null!" << std::endl;
     }
     std::cout << "Starting wheel settling loop" << std::endl;
-    for (double t = 0; t < 0.5; t += frame_time_) {
+    for (double t = 0; t < simparams_.settling_time; t += frame_time_) {
         std::cout << "Outputting frame: " << currframe_ << std::endl;
         std::cout << "Writing sphere" << std::endl;
         WriteParticleCSV();
@@ -398,7 +467,6 @@ void WheelSimulator::RunSimulationLoop() {
     auto start = std::chrono::high_resolution_clock::now();
 
     // Active box domain parameters
-    // TODO: This should be based on the wheel size, not hardcoded
     float box_halfsize_x = wheel_.r_outer * 1.25f;
     float box_halfsize_y = wheel_.width * 2.0f;
 

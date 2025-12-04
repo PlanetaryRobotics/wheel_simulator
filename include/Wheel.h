@@ -21,22 +21,15 @@ struct Wheel {
 
     // Constructor to initialize the wheel properties
     Wheel(float r_o, float r_e, float w, float m, 
-        const std::filesystem::path& mesh_path, float t_m)
-        :  r_outer(r_o), r_effective(r_e), width(w), 
-        mass(m), mesh_file_path(mesh_path), total_mass(t_m) {
+        const std::filesystem::path& mesh_path, float t_m,
+        std::unordered_map<std::string, float> mat_prop)
+        :   r_outer(r_o), r_effective(r_e), width(w), 
+            mass(m), mesh_file_path(mesh_path), total_mass(t_m),
+            material_properties(mat_prop) {
         // Calc moments of inertia based on wheel dimensions
         IYY = mass * r_outer * r_outer / 2.0f;
         IXX = (mass / 12.0f) * (3.0f * r_outer * r_outer + width * width);
         IZZ = IXX;
-        
-        // Default material properties
-        material_properties = {
-            {"E", 1e9},       // Young's modulus
-            {"nu", 0.3},      // Poisson's ratio
-            {"CoR", 0.3},     // Coefficient of restitution
-            {"mu", 0.5},      // Friction coefficient
-            {"Crr", 0.00}     // Rolling resistance coefficient
-        };
     }
 };
 

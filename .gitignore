@@ -1,2 +1,4 @@
 /build
+/wheel_terrain_chrono
+/input_files/job_parameters_chrono.json
 .vscode

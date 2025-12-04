@@ -7,6 +7,7 @@
 5. Build this code:
 ```bash
 cd build
+cmake ..
 module load cuda/11.7.1
 module load gcc/10.2.0
 make -j 64
@@ -20,6 +21,12 @@ Run the simulation using the following command:
 # for example, ./WheelSimulator /path/to/input_files "demo_batch" 0.0
 ```
 Pass in the slip value as doubles, and the batch name as a string.
+
+To run on the moonshot-chrono machine:
+Use Document/wheel_simulator already cloned and refer to the `job_parameters_chrono.json` file. Remember to change the file name to job_parameters.json. Please refer to `wheel_terrain_chrono` folder to find the output files. Run locally using this command:
+```bash
+./WheelSimulator "input_files" <batch_name> <slip>
+```
 
 To run multiple simulations on PSC, use this script:
 ```bash
@@ -74,4 +81,25 @@ echo "Sim inputs: ${INPUT_JSON} ${BATCH_NAME} ${SLIP}"
 ./WheelSimulator ${INPUT_JSON} ${BATCH_NAME} ${SLIP}
 echo "Sim complete"
 
+```
+
+## Note:
+1. Here are the meanings of the fields in material properties in `wheel_parameters.json` and `terrain_parameters.json` :
+```json
+    "material_properties": {
+      "E": 1000000000.0,    // Young's modulus
+      "nu": 0.3,            // Poisson's ratio
+      "CoR": 0.3,           // Coefficient of restitution
+      "mu": 0.5,            // Friction coefficient
+      "Crr": 0.0            // Rolling resistance coefficient
+    }
+```
+
+2. The following fields for `wheel_parameters.json` are not passed into Wheel structure, so they are deleted for this version. They might be needed in the pygalmesh branch and can be added back there.
+```json
+{
+    "grouser_number": 18,
+    "grouser_height": 0.01,
+    "control_point_deviation": 0.3,
+}
 ```
