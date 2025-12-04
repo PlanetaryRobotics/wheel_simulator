@@ -1,0 +1,15 @@
+{
+    "rim_radius": 0.085,
+    "width": 0.06,
+    "outer_radius": 0.095,
+    "mass": 0.238,
+    "total_mass": 4.5,
+    "material_properties": {
+      "E": 1000000000.0,
+      "nu": 0.3,
+      "CoR": 0.3,
+      "mu": 0.5,
+      "Crr": 0.0
+    }
+
+}

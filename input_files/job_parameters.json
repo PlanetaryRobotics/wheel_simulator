@@ -1,0 +1,15 @@
+{
+    "terrain_filepath": "/jet/home/slai2/moonranger_mobility/terrain/",
+    "wheel_folder_path": "/jet/home/slai2/moonranger_mobility/meshes/",    
+    "data_drivepath": "/ocean/projects/mch250020p/slai2/", 
+    "sim_endtime": 5,
+    "output_dir": "",
+    "step_size": 1e-6,
+    "wheel_angle": 0.0,
+    "offset": {
+        "x": -0.25,
+        "y": 0,
+        "z": 0.01
+    },
+    "settling_time": 0.5
+}
