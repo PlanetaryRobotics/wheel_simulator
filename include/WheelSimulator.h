@@ -20,12 +20,10 @@ public:
     /**
      * @brief Constructs the WheelSimulator with the given simulation parameters.
      * 
-     * @param slip Slip ratio for the simulation.
-     * @param sim_endtime Simulation end time.
-     * @param batch_dir Batch directory name for outputs.
-     * @param wheel_filepath Path to the .obj file for the wheel
-     * @param terrain_filepath Path to the .csv file containing the pre-settled terrain data.
-     * @param data_drivepath Path to the data drive
+     * @param wheel      Wheel geometry, mass/inertia, mesh path, and material properties.
+     * @param terrain    Terrain mesh path and bulk terrain properties (world size, density, volumes, and moments of inertia).
+     * @param simparams  High-level simulation parameters (slip, end time, batch/output directories, data path, step size, scale factor, angle, etc.).
+     * @param param      JSON configuration object containing input/output paths, simulation end time, and other run-time settings.
      */
     WheelSimulator( Wheel wheel, Terrain terrain, 
                     SimParams simparams, const json param
@@ -44,15 +42,7 @@ public:
     void RunSimulation();
 
 private:
-    // Simulation Parameters
-    // double slip_;
-    // double sim_endtime_;
-    // std::string batch_dir_;
-    // std::string output_dir_;
     json param_;
-    // float rot_velocity_;
-    // float scale_factor_;
-
     
     std::filesystem::path terrain_filepath_;
 

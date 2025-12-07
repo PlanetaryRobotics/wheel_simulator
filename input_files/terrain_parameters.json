@@ -1,9 +1,21 @@
 {
-  "world_size_x": 1,
-  "world_size_y": 0.3,
-  "world_size_z": 2,
+  "world_size": {
+    "x": 1,
+    "y": 0.3,
+    "z": 2
+  },
   "world_bottom": -0.5,
   "terrain_density": 2.6e3,
   "volume1": 4.2520508,
-  "volume2": 2.1670011
+  "volume2": 2.1670011,
+  "scales": [0.0014, 0.00075833, 0.00044, 0.0003, 0.0002, 0.00018333, 0.00017],
+  "scale_factor": 10,
+  "material_properties": {
+      "E": 1000000000.0,
+      "nu": 0.3,
+      "CoR": 0.3,
+      "mu": 0.5,
+      "Crr": 0.0
+  }
+
 }
